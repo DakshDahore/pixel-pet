@@ -15,6 +15,7 @@ from sound_player import (
     create_purr_samples,
     create_scratch_samples,
     create_tail_wipe_samples,
+    create_thud_samples,
     SOUNDS_DIR
 )
 from sprites import render_cat_frame, render_screen_scratch, CANVAS_SIZE, SCALE
@@ -35,7 +36,8 @@ class TestPixelPetCore(unittest.TestCase):
             "alarm_morning.wav",
             "purr.wav",
             "scratch.wav",
-            "tail_wipe.wav"
+            "tail_wipe.wav",
+            "thud.wav"
         ]
         for f in expected_files:
             p = os.path.join(SOUNDS_DIR, f)

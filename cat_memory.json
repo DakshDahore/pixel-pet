@@ -368,10 +368,10 @@
     -0.07944127566564288,
     0.05602324837428854
   ],
-  "affection": 0.71,
+  "affection": 0.8,
   "patience": 1.0,
   "total_pets": 0,
   "streak_days": 1,
   "quantized_int8": true,
-  "last_saved": 1794161283.160304
+  "last_saved": 1794162549.2738652
 }

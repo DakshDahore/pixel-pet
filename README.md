@@ -1,7 +1,7 @@
 # 🐱 Pixel Pet — Desktop Cat Companion & Cognitive Neural Brain
 
 [![Live Web Demo](https://img.shields.io/badge/Live_Demo-dakshdahore.github.io%2Fpixel--pet-00C7B7?style=for-the-badge&logo=github)](https://dakshdahore.github.io/pixel-pet/)
-[![Tests](https://img.shields.io/badge/Automated_Tests-10%2F10_Passing-brightgreen?style=for-the-badge)](test_suite.py)
+[![Tests](https://img.shields.io/badge/Automated_Tests-11%2F11_Passing-brightgreen?style=for-the-badge)](test_suite.py)
 [![Python Version](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python)](https://python.org)
 [![Hackatime Week 3](https://img.shields.io/badge/Hackatime-Week_3_Submission-F59E0B?style=for-the-badge)](https://hackatime.hackclub.com)
 
@@ -33,7 +33,7 @@ Equipped with an **unsupervised Cognitive Neural Brain (`neural_brain.py`)** tha
 * **Habit Plasticity & Memory (`cat_memory.json`):**
   Remembers your habits across reboots, tracks bonding streak days, and preserves weight adjustments.
 
-### 🐾 2. 10 Expressive Gestures & Animations
+### 🐾 2. 12 Expressive Gestures & Animations
 1. `Idle Watch`: Sits on screen edge or taskbar, tail gently swaying, periodic blinking.
 2. `Happy Bounce`: Bounces with wagging tail and floating heart sparkles.
 3. `Petted Purr`: Closed eyes in bliss (`^._.^`), vibration, purring hearts.
@@ -43,10 +43,18 @@ Equipped with an **unsupervised Cognitive Neural Brain (`neural_brain.py`)** tha
 7. `Curious Scratch`: Hind leg scratching behind the ear at the screen edge to grab attention.
 8. `Peeking Bookmark`: Paws clutching the window edge like a cute bookmark.
 9. `Curled Catnap`: Curls up on your window edge with animated `Z z z` bubbles when you are AFK.
-10. `Falling`: Slipped off an edge, paws flailing, landing on all fours.
+10. `Falling`: Slipped off an edge, paws flailing, startled scream, landing on all fours.
 11. `Empathy Beg`: Big glistening kitten eyes begging you to take a rest.
+12. `Patrol Walk & Fish Treat`: Struts across window tiles and crunches delicious treats (`🐟`).
 
-### ⚡ 3. The Dramatic Climax (Screen Scratch & Big Tail Wipe)
+### 🎪 3. Talking Tom Gravity Physics & Tab Parkour
+- **Interactive Grab & Toss**: Click/touch and drag the cat anywhere on your desktop. She dangles cute in your hand with dynamic tilt based on drag speed.
+- **Talking Tom Gravity Fall**: Release her in midair and gravity takes over! She flails downwards with panic meows, accelerates to terminal velocity, and lands with an elastic squash-and-stretch bounce.
+- **Window Tab Tile Platforms**: Window title bars act as solid platform tiles. Drop her above any window and she lands on the tab, ready to walk along the ledge!
+- **Hop Tab to Tab (Tiles)**: Leaps across window headers like platformer tiles, hopping from one app to the next before dropping to the taskbar.
+- **Hide Behind Tabs (Peek-a-boo)**: Drag her near a tab or trigger hide mode to tuck her behind the window, leaving only her cute fluffy ears and anime sparkle eyes peeking out. Click her to pop back out!
+
+### ⚡ 4. The Dramatic Climax (Screen Scratch & Big Tail Wipe)
 If you work too long without resting:
 1. Cat darts to the center of your screen.
 2. Claws your screen with realistic claw marks and scratch sound effects!

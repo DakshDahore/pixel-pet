@@ -53,6 +53,9 @@ class DesktopPetWindow:
         self.is_dragging = False
         self.drag_start_x = 0
         self.drag_start_y = 0
+        self.drag_history = []
+        self.is_falling = False
+        self.is_peeking_behind = False
 
         self.is_tantrum_running = False
         self.scratch_window = None
@@ -83,10 +86,15 @@ class DesktopPetWindow:
         abs_y = self.pos_y + event.y
         window_sensor.update_mouse_activity(abs_x, abs_y)
 
+    def get_floor_y(self):
+        return self.screen_h - self.pet_h - 60
+
     def on_mouse_down(self, event):
         self.is_dragging = True
+        self.is_falling = False
         self.drag_start_x = event.x
         self.drag_start_y = event.y
+        self.drag_history = [(time.time(), self.pos_x, self.pos_y)]
         abs_x = self.pos_x + event.x
         abs_y = self.pos_y + event.y
         window_sensor.update_mouse_activity(abs_x, abs_y)
@@ -96,15 +104,192 @@ class DesktopPetWindow:
         dy = event.y - self.drag_start_y
         self.pos_x += dx
         self.pos_y += dy
+        self.pos_x = max(5, min(self.screen_w - self.pet_w - 5, self.pos_x))
         self.root.geometry(f"{self.pet_w}x{self.pet_h}+{self.pos_x}+{self.pos_y}")
+
+        now = time.time()
+        self.drag_history.append((now, self.pos_x, self.pos_y))
+        if len(self.drag_history) > 6:
+            self.drag_history.pop(0)
+
+        # Show held / dangling pose if moved more than a little
+        if abs(dx) > 10 or abs(dy) > 10:
+            if self.current_gesture not in ("peeking", "falling"):
+                self.set_gesture("peeking")
+
         abs_x = self.pos_x + event.x
         abs_y = self.pos_y + event.y
         window_sensor.update_mouse_activity(abs_x, abs_y)
 
     def on_mouse_up(self, event):
         self.is_dragging = False
-        if abs(event.x - self.drag_start_x) < 4 and abs(event.y - self.drag_start_y) < 4:
-            self.on_pet_click()
+        abs_move = abs(event.x - self.drag_start_x) + abs(event.y - self.drag_start_y)
+
+        # Quick click without significant movement
+        if abs_move < 8:
+            if self.is_peeking_behind:
+                self.pop_out_from_hiding()
+            else:
+                self.on_pet_click()
+            return
+
+        # Calculate throw / fling velocity
+        vx, vy = 0.0, 0.0
+        if len(self.drag_history) >= 2:
+            dt = self.drag_history[-1][0] - self.drag_history[0][0]
+            if dt > 0.02:
+                vx = (self.drag_history[-1][1] - self.drag_history[0][1]) / dt * 0.015
+                vy = (self.drag_history[-1][2] - self.drag_history[0][2]) / dt * 0.015
+
+        floor_y = self.get_floor_y()
+
+        # If dropped very low at the taskbar, hide behind it
+        if self.pos_y >= floor_y + 35:
+            self.hide_behind_taskbar()
+        # If released high up in midair, trigger Talking Tom gravity fall
+        elif self.pos_y < floor_y - 25:
+            self.start_falling_physics(vx=vx, vy=vy)
+        else:
+            self.pos_y = floor_y
+            self.root.geometry(f"{self.pet_w}x{self.pet_h}+{self.pos_x}+{self.pos_y}")
+            self.set_gesture("idle")
+
+    def start_falling_physics(self, vx=0.0, vy=0.0):
+        if self.is_tantrum_running:
+            return
+        self.is_falling = True
+        self.set_gesture("falling")
+        sound_system.frightened()
+        self.show_bubble("Waaaaah!! Falling!! 🙀🐾", 2000)
+
+        vx = max(-22.0, min(22.0, vx))
+        vy = max(-15.0, min(25.0, vy))
+
+        def _step(cur_vx, cur_vy):
+            if not self.is_falling or self.is_dragging:
+                return
+
+            cur_vy += 2.8  # Gravity acceleration
+            cur_vx *= 0.96 # Air drag
+            cur_vy = min(cur_vy, 32.0) # Terminal velocity
+
+            self.pos_x += int(cur_vx)
+            self.pos_y += int(cur_vy)
+
+            floor_y = self.get_floor_y()
+
+            # Bounce off left / right screen edges
+            if self.pos_x < 10:
+                self.pos_x = 10
+                cur_vx = -cur_vx * 0.6
+            elif self.pos_x > self.screen_w - self.pet_w - 10:
+                self.pos_x = self.screen_w - self.pet_w - 10
+                cur_vx = -cur_vx * 0.6
+
+            # Floor impact
+            if self.pos_y >= floor_y:
+                self.pos_y = floor_y
+                self.root.geometry(f"{self.pet_w}x{self.pet_h}+{self.pos_x}+{self.pos_y}")
+                self.is_falling = False
+                self.trigger_landing_bounce()
+                return
+
+            self.root.geometry(f"{self.pet_w}x{self.pet_h}+{self.pos_x}+{self.pos_y}")
+            self.root.after(20, lambda: _step(cur_vx, cur_vy))
+
+        _step(vx, vy)
+
+    def trigger_landing_bounce(self):
+        sound_system.thud()
+        sound_system.cute(dynamic=True)
+        self.show_bubble("Oof! Cat landed on all 4 paws! 🐾", 2500)
+        self.set_gesture("happy")
+
+        # Squash and stretch impact
+        orig_w, orig_h = self.pet_w, self.pet_h
+        sw, sh = orig_w + 24, orig_h - 16
+        tw, th = orig_w - 12, orig_h + 10
+
+        self.root.geometry(f"{sw}x{sh}+{self.pos_x - 12}+{self.pos_y + 16}")
+
+        def _stretch():
+            self.root.geometry(f"{tw}x{th}+{self.pos_x + 6}+{self.pos_y - 10}")
+            self.root.after(90, _restore)
+
+        def _restore():
+            self.root.geometry(f"{orig_w}x{orig_h}+{self.pos_x}+{self.pos_y}")
+            self.set_gesture("idle")
+
+        self.root.after(110, _stretch)
+
+    def hide_behind_taskbar(self):
+        self.is_falling = False
+        self.is_peeking_behind = True
+        floor_y = self.get_floor_y()
+        self.pos_y = floor_y + 90
+        self.root.geometry(f"{self.pet_w}x{self.pet_h}+{self.pos_x}+{self.pos_y}")
+        self.set_gesture("peeking")
+        self.show_bubble("*whisper* Shh! Hiding behind taskbar! Click me! 🐱", 4000)
+        sound_system.cute(dynamic=True)
+
+    def pop_out_from_hiding(self):
+        self.is_peeking_behind = False
+        floor_y = self.get_floor_y()
+        self.pos_y = floor_y
+        self.root.geometry(f"{self.pet_w}x{self.pet_h}+{self.pos_x}+{self.pos_y}")
+        self.set_gesture("happy", 2500)
+        sound_system.happy(dynamic=True)
+        self.show_bubble("Peek-a-boo!! Found me! ^._.^", 2500)
+
+    def toss_in_air(self):
+        if self.is_tantrum_running or self.is_falling:
+            return
+        if self.is_peeking_behind:
+            self.pop_out_from_hiding()
+        self.start_falling_physics(vx=random.uniform(-4.0, 4.0), vy=-20.0)
+
+    def hop_tiles(self):
+        if self.is_tantrum_running or self.is_falling:
+            return
+        if self.is_peeking_behind:
+            self.pop_out_from_hiding()
+
+        floor_y = self.get_floor_y()
+        self.set_gesture("happy")
+        sound_system.cute(dynamic=True)
+        self.show_bubble("Hopping across window tiles! 🐾", 3000)
+
+        # 3 sequential jumps simulating hopping between window tiles
+        hops = [
+            (self.screen_w // 4, floor_y - 180),
+            (self.screen_w // 2, floor_y - 120),
+            (3 * self.screen_w // 4, floor_y)
+        ]
+
+        def _do_hop(hop_idx=0):
+            if hop_idx >= len(hops):
+                self.trigger_landing_bounce()
+                return
+
+            target_x, target_y = hops[hop_idx]
+            start_x, start_y = self.pos_x, self.pos_y
+
+            def _arc(step=0):
+                if step <= 12:
+                    t = step / 12.0
+                    nx = int(start_x + (target_x - start_x) * t)
+                    ny = int(start_y + (target_y - start_y) * t - math.sin(math.pi * t) * 70)
+                    self.pos_x, self.pos_y = nx, ny
+                    self.root.geometry(f"{self.pet_w}x{self.pet_h}+{nx}+{ny}")
+                    self.root.after(30, lambda: _arc(step + 1))
+                else:
+                    sound_system.thud()
+                    self.set_gesture("happy")
+                    self.root.after(400, lambda: _do_hop(hop_idx + 1))
+
+            _arc()
+
+        _do_hop()
 
     def on_pet_click(self):
         if self.is_tantrum_running:

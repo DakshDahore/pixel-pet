@@ -66,6 +66,7 @@ class ControlPanelWindow:
         self.build_sleep_alarm_section(scroll_frame)
         self.build_ai_watcher_section(scroll_frame)
         self.build_gesture_studio_section(scroll_frame)
+        self.build_parkour_section(scroll_frame)
         self.build_soundboard_section(scroll_frame)
         self.build_stats_section(scroll_frame)
 
@@ -276,6 +277,62 @@ class ControlPanelWindow:
         )
         dramatic_btn.pack(fill=tk.X, pady=8)
 
+    def build_parkour_section(self, parent):
+        box = tk.LabelFrame(parent, text="🎪 Talking Tom Gravity & Window Tiles Parkour", bg="#1e293b", fg="#38bdf8", font=("Helvetica", 11, "bold"), padx=12, pady=10)
+        box.pack(fill=tk.X, pady=6)
+
+        desc = tk.Label(
+            box,
+            text="Interactive gravity physics! Pick up & toss her, drop from heights, or hop across tiles.",
+            bg="#1e293b",
+            fg="#94a3b8",
+            font=("Helvetica", 8)
+        )
+        desc.pack(anchor="w", pady=(0, 6))
+
+        btn_row = tk.Frame(box, bg="#1e293b")
+        btn_row.pack(fill=tk.X, pady=2)
+
+        toss_btn = tk.Button(
+            btn_row,
+            text="🚀 Toss in Air\n(Talking Tom Fall)",
+            bg="#0284c7",
+            fg="#ffffff",
+            font=("Helvetica", 8, "bold"),
+            command=self.toss_cat_action
+        )
+        toss_btn.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=2)
+
+        hop_btn = tk.Button(
+            btn_row,
+            text="🪜 Hop Window Tiles\n(Platformer Jumper)",
+            bg="#10b981",
+            fg="#ffffff",
+            font=("Helvetica", 8, "bold"),
+            command=self.hop_tiles_action
+        )
+        hop_btn.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=2)
+
+        hide_btn = tk.Button(
+            btn_row,
+            text="🙈 Hide Behind Edge\n(Peek-a-boo)",
+            bg="#8b5cf6",
+            fg="#ffffff",
+            font=("Helvetica", 8, "bold"),
+            command=self.hide_behind_action
+        )
+        hide_btn.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=2)
+
+        treat_btn = tk.Button(
+            btn_row,
+            text="🐟 Feed Fish Treat\n(Nom Nom)",
+            bg="#f59e0b",
+            fg="#ffffff",
+            font=("Helvetica", 8, "bold"),
+            command=self.feed_treat_action
+        )
+        treat_btn.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=2)
+
     def build_soundboard_section(self, parent):
         box = tk.LabelFrame(parent, text="🔊 6 Dynamic Cat Sounds Board", bg="#1e293b", fg="#fbbf24", font=("Helvetica", 11, "bold"), padx=12, pady=10)
         box.pack(fill=tk.X, pady=6)
@@ -400,6 +457,22 @@ class ControlPanelWindow:
 
     def trigger_dramatic_tantrum(self):
         self.pet_window.trigger_dramatic_scratch_event()
+
+    def toss_cat_action(self):
+        if self.pet_window:
+            self.pet_window.toss_in_air()
+
+    def hop_tiles_action(self):
+        if self.pet_window:
+            self.pet_window.hop_tiles()
+
+    def hide_behind_action(self):
+        if self.pet_window:
+            self.pet_window.hide_behind_taskbar()
+
+    def feed_treat_action(self):
+        if self.pet_window:
+            self.pet_window.feed_fish_treat()
 
     def update_stats_loop(self):
         rem_sec = self.tracker.get_remaining_work_seconds()

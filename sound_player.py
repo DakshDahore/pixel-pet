@@ -140,6 +140,19 @@ def create_tail_wipe_samples(sample_rate=44100):
         samples.extend([0.0] * int(sample_rate * 0.05))
     return samples
 
+def create_thud_samples(pitch_scale=1.0, duration=0.18, sample_rate=44100):
+    total_samples = int(sample_rate * duration)
+    samples = []
+    base_f = 145.0 * pitch_scale
+    for i in range(total_samples):
+        t = i / duration / sample_rate
+        f = max(42.0, base_f * (1.0 - t * 0.75))
+        env = (1.0 - t) ** 1.9
+        pop = math.sin(2 * math.pi * f * (i / sample_rate))
+        chirp = 0.25 * math.sin(2 * math.pi * 580.0 * (i / sample_rate)) * ((1.0 - t) ** 4.0)
+        samples.append((pop * 0.85 + chirp) * env)
+    return samples
+
 def build_all_sounds():
     ensure_sounds_directory()
     write_wav(os.path.join(SOUNDS_DIR, "cute_meow.wav"), create_cute_meow_samples())
@@ -151,6 +164,7 @@ def build_all_sounds():
     write_wav(os.path.join(SOUNDS_DIR, "purr.wav"), create_purr_samples())
     write_wav(os.path.join(SOUNDS_DIR, "scratch.wav"), create_scratch_samples())
     write_wav(os.path.join(SOUNDS_DIR, "tail_wipe.wav"), create_tail_wipe_samples())
+    write_wav(os.path.join(SOUNDS_DIR, "thud.wav"), create_thud_samples())
 
 def play_audio_path(filepath):
     def _worker():
@@ -219,6 +233,9 @@ class CatSoundSystem:
 
     def tail_wipe(self):
         play_audio_path(os.path.join(SOUNDS_DIR, "tail_wipe.wav"))
+
+    def thud(self):
+        play_audio_path(os.path.join(SOUNDS_DIR, "thud.wav"))
 
 sound_system = CatSoundSystem()
 

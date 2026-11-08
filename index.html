@@ -87,16 +87,14 @@
 
     .mock-window {
       position: absolute;
-      top: 50px;
-      left: 50px;
-      width: 500px;
-      height: 330px;
       background: #0f172a;
       border-radius: 8px;
       border: 1px solid #334155;
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
       display: flex;
       flex-direction: column;
+      z-index: 5;
+      user-select: none;
     }
 
     .mock-window-header {
@@ -109,6 +107,11 @@
       justify-content: space-between;
       font-size: 0.8rem;
       color: #94a3b8;
+      cursor: grab;
+    }
+
+    .mock-window-header:active {
+      cursor: grabbing;
     }
 
     .mock-dots {
@@ -126,11 +129,11 @@
     .dot-green { background: #22c55e; }
 
     .mock-code {
-      padding: 16px;
+      padding: 14px;
       font-family: monospace;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: #38bdf8;
-      line-height: 1.5;
+      line-height: 1.45;
       flex: 1;
       overflow-y: auto;
     }
@@ -149,24 +152,45 @@
       justify-content: space-between;
       padding: 0 16px;
       font-size: 0.8rem;
+      z-index: 4;
     }
 
     #pet-container {
       position: absolute;
-      bottom: 48px;
-      right: 50px;
       width: 192px;
       height: 220px;
       cursor: grab;
       display: flex;
       flex-direction: column;
       align-items: center;
-      transition: transform 0.05s ease;
       z-index: 10;
+      touch-action: none;
+      user-select: none;
+      transform-origin: center bottom;
     }
 
     #pet-container:active {
       cursor: grabbing;
+    }
+
+    @keyframes squashImpact {
+      0% { transform: scale(1, 1); }
+      25% { transform: scale(1.42, 0.58); }
+      60% { transform: scale(0.85, 1.22); }
+      85% { transform: scale(1.08, 0.94); }
+      100% { transform: scale(1, 1); }
+    }
+
+    .squash-bounce {
+      animation: squashImpact 0.35s ease-out;
+    }
+
+    .btn-action-primary {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .btn-action-primary:hover {
+      background: #0369a1;
     }
 
     .speech-bubble {
@@ -363,8 +387,9 @@
 
   <div class="main-container">
     <div class="desktop-area" id="desktop">
-      <div class="mock-window">
-        <div class="mock-window-header">
+      <!-- Window Tile 1: VS Code Platform -->
+      <div class="mock-window" id="window-tile-1" style="top: 25px; left: 25px; width: 330px; height: 220px;">
+        <div class="mock-window-header" onpointerdown="startDragWindow(event, 'window-tile-1')">
           <div class="mock-dots">
             <div class="dot dot-red"></div>
             <div class="dot dot-yellow"></div>
@@ -379,7 +404,45 @@
           from neural_brain import NeuralBrain<br><br>
           cat = pixel_pet.Cat("Kuro")<br>
           cat.activate_neural_brain()<br>
-          print("Autonomous cognitive desktop pet active! 🐱🚀")
+          print("Autonomous cognitive pet active! 🐱🚀")
+        </div>
+      </div>
+
+      <!-- Window Tile 2: Terminal Platform -->
+      <div class="mock-window" id="window-tile-2" style="top: 95px; left: 380px; width: 320px; height: 200px;">
+        <div class="mock-window-header" onpointerdown="startDragWindow(event, 'window-tile-2')">
+          <div class="mock-dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+          </div>
+          <span>bash - test_suite.py</span>
+          <span style="font-size: 0.7rem; color: #34d399;">[SYSTEM]</span>
+        </div>
+        <div class="mock-code" style="color: #4ade80;">
+          $ python3 test_suite.py<br>
+          Ran 11 tests in 0.230s<br>
+          OK (All tests passing!)<br><br>
+          <span style="color: #94a3b8;"># Physics: Talking Tom Active<br># Tiles: Platformer Jumpers</span>
+        </div>
+      </div>
+
+      <!-- Window Tile 3: Browser Platform -->
+      <div class="mock-window" id="window-tile-3" style="top: 275px; left: 55px; width: 340px; height: 190px;">
+        <div class="mock-window-header" onpointerdown="startDragWindow(event, 'window-tile-3')">
+          <div class="mock-dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+          </div>
+          <span>Hack Club - Week 3 Form</span>
+          <span style="font-size: 0.7rem; color: #f472b6;">[SUBMISSION]</span>
+        </div>
+        <div class="mock-code" style="color: #e2e8f0;">
+          🌟 Project: Pixel Pet<br>
+          📦 Repo: github.com/DakshDahore/pixel-pet<br>
+          🌐 Demo: dakshdahore.github.io/pixel-pet<br>
+          🎯 Goal: Win the laptop! 💻✨
         </div>
       </div>
 
@@ -452,6 +515,22 @@
         <button class="btn-purple" style="width: 100%;" onclick="simulateAiAlert()">
           Simulate "AI Response Ready!" Alert 🐱✨
         </button>
+      </div>
+
+      <div class="panel-section" style="border: 1px solid #0284c7;">
+        <div class="section-title">
+          <span>🎪 TALKING TOM GRAVITY & TAB PARKOUR</span>
+          <span style="font-size: 0.7rem; color: #38bdf8;">Interactive</span>
+        </div>
+        <p style="font-size: 0.73rem; color: #94a3b8; margin-bottom: 8px; line-height: 1.4;">
+          Grab & toss her with your mouse/touch! Drop her to watch her fall with Talking Tom gravity & scream, hide her behind tabs, or hop across tiles:
+        </p>
+        <div class="btn-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 4px;">
+          <button class="btn-action-primary" onclick="tossCatInAir()">🚀 Toss in Air (Fall)</button>
+          <button class="btn-success" onclick="hopBetweenTabs()">🪜 Hop Tab to Tab (Tiles)</button>
+          <button class="btn-purple" onclick="hideBehindActiveTab()">🙈 Hide Behind Tab</button>
+          <button onclick="walkAcrossCurrentTab()">🐾 Walk on Tab</button>
+        </div>
       </div>
 
       <div class="panel-section">
@@ -639,9 +718,22 @@
           gain.connect(ctx.destination);
           noise.start(t);
         }
+      } else if (type === 'thud') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(160 * pitchMultiplier, now);
+        osc.frequency.exponentialRampToValueAtTime(45 * pitchMultiplier, now + 0.12);
+        gain.gain.setValueAtTime(0.65, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
       }
     }
 
+    const desktop = document.getElementById('desktop');
     const petSprite = document.getElementById('pet-sprite');
     const bubble = document.getElementById('speech-bubble');
     const petContainer = document.getElementById('pet-container');
@@ -655,6 +747,32 @@
     let affection = 65;
     let patience = 80;
     let neuralDecisions = 0;
+
+    let petX = 0;
+    let petY = 0;
+    let petVx = 0;
+    let petVy = 0;
+    let isDragging = false;
+    let isFalling = false;
+    let isHiding = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let dragHistory = [];
+
+    function initPetPosition() {
+      const dw = desktop.offsetWidth || 800;
+      const dh = desktop.offsetHeight || 640;
+      petX = dw - 210;
+      petY = dh - 44 - 180;
+      petContainer.style.left = petX + 'px';
+      petContainer.style.top = petY + 'px';
+      petContainer.style.right = 'auto';
+      petContainer.style.bottom = 'auto';
+    }
+    window.addEventListener('load', initPetPosition);
+    setTimeout(initPetPosition, 100);
 
     function showBubble(text, duration = 3000) {
       bubble.innerText = text;
@@ -671,7 +789,7 @@
       petSprite.src = `assets/sprite_${gestureName}.png`;
       if (duration > 0) {
         setTimeout(() => {
-          if (currentGesture === gestureName) {
+          if (currentGesture === gestureName && !isFalling && !isHiding) {
             currentGesture = 'idle';
             petSprite.src = 'assets/sprite_idle.png';
           }
@@ -679,13 +797,361 @@
       }
     }
 
-    petContainer.addEventListener('click', () => {
-      setGesture('petted', 2500);
+    // --- Interactive Dragging & Talking Tom Gravity Fall ---
+    petContainer.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      const rect = petContainer.getBoundingClientRect();
+      const dRect = desktop.getBoundingClientRect();
+
+      dragOffsetX = e.clientX - rect.left;
+      dragOffsetY = e.clientY - rect.top;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+
+      isDragging = true;
+      isFalling = false;
+      petContainer.style.transition = 'none';
+
+      if (isHiding) {
+        popOutFromHiding();
+        return;
+      }
+
+      dragHistory = [{ t: Date.now(), x: e.clientX, y: e.clientY }];
+      setGesture('peeking', 0);
+      showBubble("*meow* Talking Tom mode! Grab & toss me! 🐾", 2000);
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+
+      const dRect = desktop.getBoundingClientRect();
+      petX = Math.max(5, Math.min(dRect.width - 180, e.clientX - dRect.left - dragOffsetX));
+      petY = Math.max(5, Math.min(dRect.height - 44 - 160, e.clientY - dRect.top - dragOffsetY));
+
+      petContainer.style.left = petX + 'px';
+      petContainer.style.top = petY + 'px';
+
+      const now = Date.now();
+      dragHistory.push({ t: now, x: e.clientX, y: e.clientY });
+      if (dragHistory.length > 5) dragHistory.shift();
+
+      if (dragHistory.length >= 2) {
+        const last = dragHistory[dragHistory.length - 1];
+        const prev = dragHistory[0];
+        const dt = Math.max(1, last.t - prev.t);
+        const vx = (last.x - prev.x) / dt * 15;
+        const tilt = Math.max(-20, Math.min(20, vx));
+        petContainer.style.transform = `rotate(${tilt}deg)`;
+      }
+    });
+
+    window.addEventListener('pointerup', (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      petContainer.style.transform = 'none';
+
+      const dist = Math.hypot(e.clientX - dragStartX, e.clientY - dragStartY);
+      if (dist < 8) {
+        onPetClick();
+        return;
+      }
+
+      let vx = 0, vy = 0;
+      if (dragHistory.length >= 2) {
+        const last = dragHistory[dragHistory.length - 1];
+        const prev = dragHistory[0];
+        const dt = Math.max(1, last.t - prev.t);
+        vx = Math.max(-18, Math.min(18, (last.x - prev.x) / dt * 16));
+        vy = Math.max(-15, Math.min(18, (last.y - prev.y) / dt * 16));
+      }
+
+      const tabs = [
+        document.getElementById('window-tile-1'),
+        document.getElementById('window-tile-2'),
+        document.getElementById('window-tile-3')
+      ];
+
+      const catFootX = petX + 96;
+      const catFootY = petY + 180;
+      let droppedOnTab = false;
+
+      for (let i = 0; i < tabs.length; i++) {
+        const tab = tabs[i];
+        if (!tab) continue;
+        const tLeft = tab.offsetLeft;
+        const tRight = tab.offsetLeft + tab.offsetWidth;
+        const tTop = tab.offsetTop;
+
+        if (catFootX >= tLeft && catFootX <= tRight && Math.abs(catFootY - tTop) < 35 && vy <= 2) {
+          hideBehindTab(i + 1);
+          droppedOnTab = true;
+          break;
+        }
+      }
+
+      if (!droppedOnTab) {
+        startFallPhysics(vx, vy);
+      }
+    });
+
+    function startFallPhysics(initVx = 0, initVy = 0) {
+      if (isFalling) return;
+      isFalling = true;
+      petVx = initVx;
+      petVy = initVy;
+
+      setGesture('falling', 0);
+      playSound('frightened');
+      showBubble("Waaaaah!! Falling!! 🙀🐾", 2000);
+
+      function physicsStep() {
+        if (!isFalling || isDragging) return;
+
+        petVy += 1.3;
+        petVx *= 0.97;
+        petVy = Math.min(petVy, 26);
+
+        petX += petVx;
+        petY += petVy;
+
+        const dw = desktop.offsetWidth || 800;
+        const dh = desktop.offsetHeight || 640;
+
+        if (petX < 5) {
+          petX = 5;
+          petVx = -petVx * 0.5;
+        } else if (petX > dw - 180) {
+          petX = dw - 180;
+          petVx = -petVx * 0.5;
+        }
+
+        const catFootX = petX + 96;
+        const catFootY = petY + 180;
+
+        const tabs = [
+          { el: document.getElementById('window-tile-1'), name: 'VS Code' },
+          { el: document.getElementById('window-tile-2'), name: 'Terminal' },
+          { el: document.getElementById('window-tile-3'), name: 'Hack Club' }
+        ];
+
+        let landed = false;
+        if (petVy >= 0) {
+          for (let tabObj of tabs) {
+            const el = tabObj.el;
+            if (!el) continue;
+            const tLeft = el.offsetLeft;
+            const tRight = el.offsetLeft + el.offsetWidth;
+            const tTop = el.offsetTop;
+
+            if (catFootX >= tLeft - 10 && catFootX <= tRight + 10) {
+              if (catFootY >= tTop && catFootY <= tTop + 32) {
+                petY = tTop - 180;
+                isFalling = false;
+                landed = true;
+                triggerLandingBounce(tabObj.name);
+                break;
+              }
+            }
+          }
+        }
+
+        const floorY = dh - 44 - 180;
+        if (!landed && petY >= floorY) {
+          petY = floorY;
+          isFalling = false;
+          triggerLandingBounce('taskbar');
+          landed = true;
+        }
+
+        petContainer.style.left = petX + 'px';
+        petContainer.style.top = petY + 'px';
+
+        if (isFalling) {
+          requestAnimationFrame(physicsStep);
+        }
+      }
+
+      requestAnimationFrame(physicsStep);
+    }
+
+    function triggerLandingBounce(surfaceName) {
+      playSound('thud');
+      playSound('cute');
+
+      petContainer.classList.add('squash-bounce');
+      setTimeout(() => petContainer.classList.remove('squash-bounce'), 360);
+
+      setGesture('happy', 1800);
+      if (surfaceName === 'taskbar') {
+        showBubble("Oof! Cat landed on all 4 paws! 🐾", 2500);
+      } else {
+        showBubble(`Landed on ${surfaceName} tab tile! 🐾`, 2500);
+      }
+    }
+
+    function hideBehindTab(tileNum = 1) {
+      const el = document.getElementById(`window-tile-${tileNum}`);
+      if (!el) return;
+      isFalling = false;
+      isHiding = true;
+
+      petX = el.offsetLeft + (el.offsetWidth / 2) - 96;
+      petY = el.offsetTop - 55;
+      petContainer.style.left = petX + 'px';
+      petContainer.style.top = petY + 'px';
+      petContainer.style.zIndex = '3';
+
+      setGesture('peeking', 0);
+      playSound('cute');
+      showBubble("*whisper* Shh! Hiding behind this tab! Click me! 🐱", 4000);
+    }
+
+    function hideBehindActiveTab() {
+      hideBehindTab(1);
+    }
+
+    function popOutFromHiding() {
+      if (!isHiding) return;
+      isHiding = false;
+      petContainer.style.zIndex = '10';
+
+      petY -= 45;
+      petContainer.style.top = petY + 'px';
+      setGesture('happy', 2500);
       playSound('happy');
-      showBubble('Purrrrr~ Love you! ^._.^', 2500);
+      showBubble("Peek-a-boo!! You found me! ^._.^", 2500);
+      triggerLandingBounce('tab');
+    }
+
+    function hopBetweenTabs() {
+      if (isFalling || isDragging) return;
+      if (isHiding) popOutFromHiding();
+
+      const tabs = [
+        { el: document.getElementById('window-tile-1'), name: 'VS Code' },
+        { el: document.getElementById('window-tile-2'), name: 'Terminal' },
+        { el: document.getElementById('window-tile-3'), name: 'Hack Club' }
+      ];
+
+      showBubble("Hopping from tab to tab like tiles! 🐾", 3000);
+      playSound('happy');
+
+      function jumpTo(targetX, targetY, onComplete) {
+        setGesture('happy', 800);
+        const startX = petX;
+        const startY = petY;
+        const startTime = Date.now();
+        const duration = 480;
+
+        function step() {
+          const t = Math.min(1, (Date.now() - startTime) / duration);
+          const arc = Math.sin(Math.PI * t) * 65;
+          petX = startX + (targetX - startX) * t;
+          petY = startY + (targetY - startY) * t - arc;
+          petContainer.style.left = petX + 'px';
+          petContainer.style.top = petY + 'px';
+
+          if (t < 1) {
+            requestAnimationFrame(step);
+          } else {
+            playSound('thud');
+            petContainer.classList.add('squash-bounce');
+            setTimeout(() => petContainer.classList.remove('squash-bounce'), 360);
+            onComplete();
+          }
+        }
+        requestAnimationFrame(step);
+      }
+
+      const t1 = tabs[0].el;
+      jumpTo(t1.offsetLeft + 40, t1.offsetTop - 180, () => {
+        showBubble("Hop 1: VS Code tab! 🐾", 900);
+        setTimeout(() => {
+          const t2 = tabs[1].el;
+          jumpTo(t2.offsetLeft + 30, t2.offsetTop - 180, () => {
+            showBubble("Hop 2: Terminal tab! 🐾", 900);
+            setTimeout(() => {
+              const t3 = tabs[2].el;
+              jumpTo(t3.offsetLeft + 30, t3.offsetTop - 180, () => {
+                showBubble("Hop 3: Hack Club tab! 🐾", 900);
+                setTimeout(() => {
+                  showBubble("Dropping off the ledge! 🙀", 1500);
+                  startFallPhysics(Math.random() * 4 - 2, 2);
+                }, 900);
+              });
+            }, 800);
+          });
+        }, 800);
+      });
+    }
+
+    function tossCatInAir() {
+      if (isFalling || isDragging) return;
+      if (isHiding) popOutFromHiding();
+      startFallPhysics(Math.random() * 6 - 3, -16);
+    }
+
+    function walkAcrossCurrentTab() {
+      if (isFalling || isDragging) return;
+      setGesture('walking', 2500);
+      playSound('cute');
+      showBubble("Strolling along the tab ledge! :3", 2500);
+
+      let dir = 1;
+      let count = 0;
+      const interval = setInterval(() => {
+        petX += dir * 8;
+        petContainer.style.left = petX + 'px';
+        count++;
+        if (count === 8) dir = -1;
+        if (count >= 16) {
+          clearInterval(interval);
+          setGesture('idle');
+        }
+      }, 90);
+    }
+
+    // Draggable Window Tiles
+    let activeDragWin = null;
+    let winOffsetX = 0;
+    let winOffsetY = 0;
+
+    function startDragWindow(e, winId) {
+      if (e.target.closest('.mock-dots')) return;
+      const win = document.getElementById(winId);
+      if (!win) return;
+      activeDragWin = win;
+      const rect = win.getBoundingClientRect();
+      winOffsetX = e.clientX - rect.left;
+      winOffsetY = e.clientY - rect.top;
+      win.style.zIndex = '6';
+    }
+
+    window.addEventListener('pointermove', (e) => {
+      if (!activeDragWin) return;
+      const dRect = desktop.getBoundingClientRect();
+      const nx = Math.max(5, Math.min(dRect.width - activeDragWin.offsetWidth - 5, e.clientX - dRect.left - winOffsetX));
+      const ny = Math.max(5, Math.min(dRect.height - 44 - activeDragWin.offsetHeight - 5, e.clientY - dRect.top - winOffsetY));
+      activeDragWin.style.left = nx + 'px';
+      activeDragWin.style.top = ny + 'px';
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (activeDragWin) {
+        activeDragWin.style.zIndex = '5';
+        activeDragWin = null;
+      }
+    });
+
+    function onPetClick() {
       affection = Math.min(100, affection + 5);
       updateBars();
-    });
+      setGesture('petted', 2500);
+      playSound('cute');
+      showBubble("Purrrrr~ Love you! ^._.^", 2500);
+    }
 
     function updateBars() {
       document.getElementById('affection-val').innerText = `${affection}%`;
@@ -788,9 +1254,18 @@
       patience = Math.max(10, patience - 30);
       updateBars();
 
+      const dw = desktop.offsetWidth || 800;
+      const dh = desktop.offsetHeight || 640;
+      const startX = petX;
+      const startY = petY;
+      const centerX = (dw / 2) - 96;
+      const centerY = (dh / 2) - 100;
+
       petContainer.style.transition = 'all 0.5s ease';
-      petContainer.style.right = '40%';
-      petContainer.style.bottom = '40%';
+      petX = centerX;
+      petY = centerY;
+      petContainer.style.left = petX + 'px';
+      petContainer.style.top = petY + 'px';
 
       setTimeout(() => {
         setGesture('scratching');
@@ -802,14 +1277,18 @@
           playSound('frightened');
           showBubble('O_O OH NO!! WHAT DID I DO?!', 1500);
 
-          petContainer.style.right = '10%';
-          petContainer.style.bottom = '10%';
+          petX = 30;
+          petY = dh - 44 - 180;
+          petContainer.style.left = petX + 'px';
+          petContainer.style.top = petY + 'px';
 
           setTimeout(() => {
             showBubble('...wait, I can fix it!', 1500);
             setGesture('peeking');
-            petContainer.style.right = '35%';
-            petContainer.style.bottom = '38%';
+            petX = centerX - 30;
+            petY = centerY;
+            petContainer.style.left = petX + 'px';
+            petContainer.style.top = petY + 'px';
 
             setTimeout(() => {
               setGesture('happy');
@@ -822,9 +1301,15 @@
                 showBubble('All clean! Like nothing happened :3', 2500);
 
                 setTimeout(() => {
-                  petContainer.style.right = '50px';
-                  petContainer.style.bottom = '48px';
-                  setGesture('idle');
+                  petContainer.style.transition = 'all 0.4s ease';
+                  petX = dw - 210;
+                  petY = dh - 44 - 180;
+                  petContainer.style.left = petX + 'px';
+                  petContainer.style.top = petY + 'px';
+                  setTimeout(() => {
+                    petContainer.style.transition = 'none';
+                    setGesture('idle');
+                  }, 450);
                 }, 2000);
               }, 1200);
             }, 1500);
