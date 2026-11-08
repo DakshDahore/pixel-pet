@@ -135,7 +135,7 @@ pixel-pet/
 ├── control_panel.py     # Companion settings, timer, customizer & brain panel
 ├── neural_brain.py      # 16-neuron cognitive brain with Hebbian learning
 ├── window_sensor.py     # Cross-platform active window & AFK/idle sensor
-├── sprites.py           # Pixel art generator for all 10 gestures
+├── sprites.py           # Pixel art generator for all 12 gestures
 ├── sound_player.py      # Procedural sound synthesizer with dynamic variation
 ├── screen_tracker.py    # Screen time tracker & AI response detector
 ├── test_suite.py        # Automated unit & 24-hr simulation test suite

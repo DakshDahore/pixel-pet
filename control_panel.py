@@ -230,7 +230,7 @@ class ControlPanelWindow:
         test_ai_btn.pack(anchor="w", pady=6)
 
     def build_gesture_studio_section(self, parent):
-        box = tk.LabelFrame(parent, text="🎭 10 Gestures & Dramatic Tantrum", bg="#1e293b", fg="#f472b6", font=("Helvetica", 11, "bold"), padx=12, pady=10)
+        box = tk.LabelFrame(parent, text="🎭 12 Gestures & Dramatic Tantrum", bg="#1e293b", fg="#f472b6", font=("Helvetica", 11, "bold"), padx=12, pady=10)
         box.pack(fill=tk.X, pady=6)
 
         gestures = [
@@ -243,25 +243,27 @@ class ControlPanelWindow:
             ("Sleeping", "sleeping"),
             ("Falling", "falling"),
             ("Idle", "idle"),
-            ("Empathy", "empathy")
+            ("Empathy", "empathy"),
+            ("Walking", "walking"),
+            ("Eating", "eating")
         ]
 
         grid_frame = tk.Frame(box, bg="#1e293b")
         grid_frame.pack(fill=tk.X, pady=4)
 
         for i, (label, g_name) in enumerate(gestures):
-            r = i // 5
-            c = i % 5
+            r = i // 6
+            c = i % 6
             btn = tk.Button(
                 grid_frame,
                 text=label,
                 bg="#334155",
                 fg="#f1f5f9",
-                width=9,
+                width=8,
                 font=("Helvetica", 8, "bold"),
                 command=lambda g=g_name: self.trigger_gesture(g)
             )
-            btn.grid(row=r, column=c, padx=3, pady=3)
+            btn.grid(row=r, column=c, padx=2, pady=3)
 
         dramatic_btn = tk.Button(
             box,
