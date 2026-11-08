@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Pet - Desktop Cat Companion</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: #090d16;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #111827;
+      border-bottom: 2px solid #1f2937;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand h1 {
+      font-size: 1.25rem;
+      color: #38bdf8;
+      letter-spacing: -0.5px;
+    }
+
+    .badge {
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 20px;
+      padding: 20px;
+      flex: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .desktop-area {
+      background: #1e1b4b;
+      border: 3px solid #312e81;
+      border-radius: 12px;
+      position: relative;
+      height: 620px;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 40%);
+    }
+
+    .mock-window {
+      position: absolute;
+      top: 60px;
+      left: 60px;
+      width: 480px;
+      height: 320px;
+      background: #0f172a;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mock-window-header {
+      background: #1e293b;
+      padding: 8px 12px;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    .mock-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #eab308; }
+    .dot-green { background: #22c55e; }
+
+    .mock-code {
+      padding: 16px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      line-height: 1.5;
+    }
+
+    .mock-taskbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 44px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 0.8rem;
+    }
+
+    #pet-container {
+      position: absolute;
+      bottom: 48px;
+      right: 50px;
+      width: 192px;
+      height: 220px;
+      cursor: grab;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.05s ease;
+      z-index: 10;
+    }
+
+    #pet-container:active {
+      cursor: grabbing;
+    }
+
+    .speech-bubble {
+      background: #ffffff;
+      color: #0f172a;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      position: relative;
+      text-align: center;
+      max-width: 180px;
+      display: block;
+      animation: pop 0.2s ease;
+    }
+
+    .speech-bubble::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px 6px 0;
+      border-style: solid;
+      border-color: #ffffff transparent;
+      display: block;
+      width: 0;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    #pet-sprite {
+      width: 160px;
+      height: 160px;
+      image-rendering: pixelated;
+      pointer-events: none;
+    }
+
+    .scratch-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 320px;
+      height: 240px;
+      pointer-events: none;
+      z-index: 20;
+      display: none;
+    }
+
+    .control-panel {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      height: 620px;
+      overflow-y: auto;
+    }
+
+    .panel-section {
+      background: #1f2937;
+      border-radius: 8px;
+      padding: 12px;
+      border: 1px solid #374151;
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    button {
+      background: #374151;
+      color: #f3f4f6;
+      border: none;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    button:hover {
+      background: #4b5563;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: #ffffff;
+    }
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    .btn-success {
+      background: #16a34a;
+      color: #ffffff;
+    }
+    .btn-success:hover {
+      background: #15803d;
+    }
+
+    .stats-text {
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span style="font-size: 1.5rem;">🐱</span>
+      <h1>Pixel Pet</h1>
+      <span class="badge">Hackatime Week 3</span>
+    </div>
+    <div style="font-size: 0.85rem; color: #94a3b8;">
+      Desktop Screen Time & Health Guardian
+    </div>
+  </header>
+
+  <div class="main-container">
+    <div class="desktop-area" id="desktop">
+      <div class="mock-window">
+        <div class="mock-window-header">
+          <div class="mock-dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+          </div>
+          <span>workspace - main.py</span>
+        </div>
+        <div class="mock-code">
+          # Coding my Hackatime project...<br>
+          import pixel_pet<br>
+          cat = pixel_pet.Cat("Kuro")<br>
+          cat.start_screen_time_tracker()<br>
+          print("Winning that laptop for sure!! 🚀")
+        </div>
+      </div>
+
+      <svg class="scratch-overlay" id="scratch-overlay" viewBox="0 0 320 240">
+        <line x1="40" y1="30" x2="140" y2="190" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
+        <line x1="70" y1="20" x2="170" y2="210" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
+        <line x1="100" y1="35" x2="200" y2="195" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+        <line x1="50" y1="45" x2="135" y2="175" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" />
+      </svg>
+
+      <div id="pet-container">
+        <div class="speech-bubble" id="speech-bubble">Hello! I'm your Pixel Pet! *meow*</div>
+        <img id="pet-sprite" src="assets/sprite_idle.png" alt="Pixel Pet">
+      </div>
+
+      <div class="mock-taskbar">
+        <span>⚡ Screen Active: <strong id="timer-display">25:00</strong></span>
+        <span>Hydration: <strong id="water-count">0</strong> glasses 🥛</span>
+        <span id="current-clock">17:05</span>
+      </div>
+    </div>
+
+    <div class="control-panel">
+      <div class="panel-section">
+        <div class="section-title">⏱ POMODORO & BREAKS</div>
+        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+          <button class="btn-success" style="flex: 1;" onclick="takeBreak()">Take Break</button>
+          <button class="btn-primary" style="flex: 1;" onclick="resumeWork()">Resume Work</button>
+        </div>
+        <button style="width: 100%;" onclick="logWater()">Log Glass of Water 🥛</button>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">⚡ DRAMATIC EVENT</div>
+        <button class="btn-danger" style="width: 100%;" onclick="triggerDramaticEvent()">
+          Trigger Screen Scratch & Tail Wipe!
+        </button>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">🤖 AI WATCHER</div>
+        <button class="btn-primary" style="width: 100%;" onclick="simulateAiAlert()">
+          Simulate "AI Response Ready!" Alert 🐱✨
+        </button>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">🎭 10 GESTURES STUDIO</div>
+        <div class="btn-grid">
+          <button onclick="setGesture('happy')">Happy</button>
+          <button onclick="setGesture('petted')">Petted</button>
+          <button onclick="setGesture('sad')">Sad</button>
+          <button onclick="setGesture('turned')">Turned Back</button>
+          <button onclick="setGesture('scratching')">Scratching</button>
+          <button onclick="setGesture('peeking')">Peeking</button>
+          <button onclick="setGesture('sleeping')">Sleeping</button>
+          <button onclick="setGesture('falling')">Falling</button>
+          <button onclick="setGesture('idle')">Idle</button>
+          <button onclick="setGesture('empathy')">Empathy</button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">🔊 6 CAT SOUNDS</div>
+        <div class="btn-grid">
+          <button onclick="playSound('happy')">Happy Meow</button>
+          <button onclick="playSound('cute')">Cute Meow</button>
+          <button onclick="playSound('sad')">Sad Meow</button>
+          <button onclick="playSound('angry')">Angry Hiss</button>
+          <button onclick="playSound('frightened')">Scared Yowl</button>
+          <button onclick="playSound('alarm')">Alarm Fanfare</button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">📊 STATS</div>
+        <div class="stats-text" id="stats-text">
+          Status: WORKING<br>
+          Breaks taken: 0<br>
+          Water drank: 0 glasses<br>
+          Compliance: 100%
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let audioCtx = null;
+    function getAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      const ctx = getAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      if (type === 'cute') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(750, now);
+        osc.frequency.exponentialRampToValueAtTime(1020, now + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.35);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.4, now + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      } else if (type === 'happy') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(580, now);
+        osc.frequency.exponentialRampToValueAtTime(960, now + 0.18);
+        osc.frequency.exponentialRampToValueAtTime(700, now + 0.42);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.35, now + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.48);
+      } else if (type === 'sad') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(640, now);
+        osc.frequency.exponentialRampToValueAtTime(380, now + 0.55);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.35, now + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.65);
+      } else if (type === 'angry') {
+        const b = ctx.createBuffer(1, ctx.sampleRate * 0.45, ctx.sampleRate);
+        const d = b.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+        const noise = ctx.createBufferSource();
+        noise.buffer = b;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(4200, now);
+        filter.Q.setValueAtTime(2.0, now);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.35, now + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        noise.start(now);
+        noise.stop(now + 0.48);
+      } else if (type === 'frightened') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(1850, now);
+        osc.frequency.exponentialRampToValueAtTime(750, now + 0.35);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.45, now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      } else if (type === 'alarm') {
+        for (let i = 0; i < 3; i++) {
+          const t = now + i * 0.22;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(800 + i * 200, t);
+          gain.gain.setValueAtTime(0.001, t);
+          gain.gain.linearRampToValueAtTime(0.3, t + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.22);
+        }
+      } else if (type === 'scratch') {
+        const b = ctx.createBuffer(1, ctx.sampleRate * 0.35, ctx.sampleRate);
+        const d = b.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+        const noise = ctx.createBufferSource();
+        noise.buffer = b;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(3500, now);
+        filter.Q.setValueAtTime(4.0, now);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        noise.start(now);
+      } else if (type === 'tail_wipe') {
+        for (let i = 0; i < 4; i++) {
+          const t = now + i * 0.25;
+          const b = ctx.createBuffer(1, ctx.sampleRate * 0.2, ctx.sampleRate);
+          const d = b.getChannelData(0);
+          for (let j = 0; j < d.length; j++) d[j] = Math.random() * 2 - 1;
+          const noise = ctx.createBufferSource();
+          noise.buffer = b;
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(800, t);
+          const gain = ctx.createGain();
+          gain.gain.setValueAtTime(0.25, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+          noise.start(t);
+        }
+      }
+    }
+
+    const petSprite = document.getElementById('pet-sprite');
+    const bubble = document.getElementById('speech-bubble');
+    const petContainer = document.getElementById('pet-container');
+    const scratchOverlay = document.getElementById('scratch-overlay');
+
+    let currentGesture = 'idle';
+    let waterCount = 0;
+    let breaksCount = 0;
+    let secondsLeft = 25 * 60;
+    let isWorking = true;
+
+    function showBubble(text, duration = 3000) {
+      bubble.innerText = text;
+      bubble.style.display = 'block';
+      setTimeout(() => {
+        if (bubble.innerText === text) {
+          bubble.style.display = 'none';
+        }
+      }, duration);
+    }
+
+    function setGesture(gestureName, duration = 3000) {
+      currentGesture = gestureName;
+      petSprite.src = `assets/sprite_${gestureName}.png`;
+      if (duration > 0) {
+        setTimeout(() => {
+          if (currentGesture === gestureName) {
+            currentGesture = 'idle';
+            petSprite.src = 'assets/sprite_idle.png';
+          }
+        }, duration);
+      }
+    }
+
+    petContainer.addEventListener('click', () => {
+      setGesture('petted', 2500);
+      playSound('happy');
+      showBubble('Purrrrr~ Love you! ^._.^', 2500);
+    });
+
+    function takeBreak() {
+      isWorking = false;
+      breaksCount++;
+      setGesture('happy', 3000);
+      playSound('happy');
+      showBubble('Good job taking a break! Relax your eyes~', 3000);
+      updateStats();
+    }
+
+    function resumeWork() {
+      isWorking = true;
+      secondsLeft = 25 * 60;
+      setGesture('idle');
+      playSound('cute');
+      showBubble('Back to work! I\'ll keep watch for you.', 3000);
+      updateStats();
+    }
+
+    function logWater() {
+      waterCount++;
+      document.getElementById('water-count').innerText = waterCount;
+      setGesture('petted', 2000);
+      playSound('cute');
+      showBubble('Gulp gulp! Stay hydrated! Good job! :3', 2500);
+      updateStats();
+    }
+
+    function simulateAiAlert() {
+      setGesture('happy', 4000);
+      playSound('happy');
+      showBubble('You\'re up! AI has finished generating your answer! 🐱✨', 4000);
+    }
+
+    function triggerDramaticEvent() {
+      showBubble('HEY! BREAK TIME NOW!!', 1500);
+      setGesture('angry');
+      playSound('angry');
+
+      petContainer.style.transition = 'all 0.5s ease';
+      petContainer.style.right = '40%';
+      petContainer.style.bottom = '40%';
+
+      setTimeout(() => {
+        setGesture('scratching');
+        playSound('scratch');
+        scratchOverlay.style.display = 'block';
+
+        setTimeout(() => {
+          setGesture('frightened');
+          playSound('frightened');
+          showBubble('O_O OH NO!! WHAT DID I DO?!', 1500);
+
+          petContainer.style.right = '10%';
+          petContainer.style.bottom = '10%';
+
+          setTimeout(() => {
+            showBubble('...wait, I can fix it!', 1500);
+            setGesture('peeking');
+            petContainer.style.right = '35%';
+            petContainer.style.bottom = '38%';
+
+            setTimeout(() => {
+              setGesture('happy');
+              playSound('tail_wipe');
+
+              setTimeout(() => {
+                scratchOverlay.style.display = 'none';
+                setGesture('petted');
+                playSound('cute');
+                showBubble('All clean! Like nothing happened :3', 2500);
+
+                setTimeout(() => {
+                  petContainer.style.right = '50px';
+                  petContainer.style.bottom = '48px';
+                  setGesture('idle');
+                }, 2000);
+              }, 1200);
+            }, 1500);
+          }, 1500);
+        }, 1200);
+      }, 600);
+    }
+
+    function updateStats() {
+      document.getElementById('stats-text').innerHTML = `
+        Status: ${isWorking ? 'WORKING' : 'ON BREAK'}<br>
+        Breaks taken: ${breaksCount}<br>
+        Water drank: ${waterCount} glasses 🥛<br>
+        Compliance: 100%
+      `;
+    }
+
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById('current-clock').innerText = now.toTimeString().substring(0, 5);
+
+      if (isWorking && secondsLeft > 0) {
+        secondsLeft--;
+        const m = Math.floor(secondsLeft / 60);
+        const s = secondsLeft % 60;
+        document.getElementById('timer-display').innerText = 
+          `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
