@@ -10,3 +10,4 @@ pip install -r requirements.txt
 echo.
 echo Installation complete! Double click run.bat to launch your pet!
 pause
+

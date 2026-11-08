@@ -1,6 +1,7 @@
 import time
 import json
 import os
+import sys
 import threading
 from datetime import datetime
 from window_sensor import window_sensor
@@ -17,6 +18,8 @@ DEFAULT_CONFIG = {
     "alarm_enabled": True,
     "ai_watcher_enabled": True,
     "neural_brain_enabled": True,
+    "battery_guard_enabled": True,
+    "eye_strain_20_20_enabled": True,
     "sound_enabled": True,
     "cat_name": "Kuro",
     "eye_color": "green",
@@ -24,6 +27,38 @@ DEFAULT_CONFIG = {
     "water_glasses_logged": 0,
     "breaks_taken": 0
 }
+
+def get_battery_info():
+    try:
+        if sys.platform.startswith("linux"):
+            bat_path = "/sys/class/power_supply/BAT0"
+            if os.path.exists(bat_path):
+                cap_file = os.path.join(bat_path, "capacity")
+                stat_file = os.path.join(bat_path, "status")
+                with open(cap_file, "r") as f:
+                    capacity = int(f.read().strip())
+                with open(stat_file, "r") as f:
+                    status = f.read().strip()
+                return capacity, status
+        elif sys.platform.startswith("win"):
+            import ctypes
+            class SYSTEM_POWER_STATUS(ctypes.Structure):
+                _fields_ = [
+                    ('ACLineStatus', ctypes.c_byte),
+                    ('BatteryFlag', ctypes.c_byte),
+                    ('BatteryLifePercent', ctypes.c_byte),
+                    ('Reserved1', ctypes.c_byte),
+                    ('BatteryLifeTime', ctypes.c_ulong),
+                    ('BatteryFullLifeTime', ctypes.c_ulong)
+                ]
+            sps = SYSTEM_POWER_STATUS()
+            if ctypes.windll.kernel32.GetSystemPowerStatus(ctypes.byref(sps)):
+                pct = int(sps.BatteryLifePercent)
+                stat = "Charging" if sps.ACLineStatus == 1 else "Discharging"
+                return pct, stat
+    except Exception:
+        pass
+    return None, None
 
 class ScreenTimeTracker:
     def __init__(self, on_state_change=None, on_notification=None, on_neural_action=None):
@@ -35,6 +70,7 @@ class ScreenTimeTracker:
         self.session_seconds = 0
         self.total_seconds = self.config.get("total_work_seconds", 0)
         self.water_timer_seconds = 0
+        self.eye_strain_timer_seconds = 0
 
         self.current_state = "working"
         self.escalation_level = 0
@@ -46,6 +82,8 @@ class ScreenTimeTracker:
         self.last_clipboard_text = ""
         self.ai_watching = self.config.get("ai_watcher_enabled", True)
         self.neural_enabled = self.config.get("neural_brain_enabled", True)
+        self.last_battery_alert = 0
+        self.last_battery_status = ""
 
         self.last_window_category = "general"
         self.last_neural_decision_time = time.time()
@@ -86,6 +124,7 @@ class ScreenTimeTracker:
         self.current_state = "on_break"
         self.escalation_level = 0
         self.break_overdue_seconds = 0
+        self.eye_strain_timer_seconds = 0
         self.config["breaks_taken"] = self.config.get("breaks_taken", 0) + 1
         self.save_config()
         neural_brain.learn_from_break_taken()
@@ -97,6 +136,7 @@ class ScreenTimeTracker:
         self.session_seconds = 0
         self.escalation_level = 0
         self.break_overdue_seconds = 0
+        self.eye_strain_timer_seconds = 0
         if self.on_state_change:
             self.on_state_change("idle", "Back to work! I'll keep watch for you.")
 
@@ -133,9 +173,28 @@ class ScreenTimeTracker:
         if self.on_state_change:
             self.on_state_change("happy", "Yay! Have a wonderful day today!")
 
+    def check_battery_guard(self):
+        if not self.config.get("battery_guard_enabled", True):
+            return
+
+        cap, stat = get_battery_info()
+        if cap is None:
+            return
+
+        now = time.time()
+        if stat == "Discharging" and cap <= 20 and (now - self.last_battery_alert > 300):
+            self.last_battery_alert = now
+            if self.on_notification:
+                self.on_notification("battery_low", f"Battery low at {cap}%! Plug in charger! ⚡")
+        elif stat == "Charging" and self.last_battery_status == "Discharging":
+            if self.on_notification:
+                self.on_notification("battery_charging", "Charger connected! Power restored! ⚡:3")
+
+        self.last_battery_status = stat
+
     def evaluate_neural_brain(self):
         now = time.time()
-        if now - self.last_neural_decision_time < 15.0:
+        if now - self.last_neural_decision_time < 12.0:
             return
 
         self.last_neural_decision_time = now
@@ -183,16 +242,33 @@ class ScreenTimeTracker:
             self.on_neural_action(action, category, title, probs)
 
     def _tracker_loop(self):
+        battery_tick_counter = 0
+
         while self.running:
-            time.sleep(1.0)
+            idle_sec = window_sensor.get_idle_seconds()
+            sleep_interval = 2.0 if idle_sec > 300 or self.is_sleeping else 1.0
+            time.sleep(sleep_interval)
+
+            elapsed_step = int(sleep_interval)
             self.check_time_schedules()
+
+            battery_tick_counter += elapsed_step
+            if battery_tick_counter >= 30:
+                battery_tick_counter = 0
+                self.check_battery_guard()
 
             if self.is_sleeping:
                 continue
 
-            self.session_seconds += 1
-            self.total_seconds += 1
-            self.water_timer_seconds += 1
+            self.session_seconds += elapsed_step
+            self.total_seconds += elapsed_step
+            self.water_timer_seconds += elapsed_step
+            self.eye_strain_timer_seconds += elapsed_step
+
+            if self.config.get("eye_strain_20_20_enabled", True) and self.eye_strain_timer_seconds >= 1200:
+                self.eye_strain_timer_seconds = 0
+                if self.on_notification:
+                    self.on_notification("eye_strain", "20-20-20 Rule: Look 20 feet away for 20s to rest your eyes! 👀")
 
             work_limit = self.config["work_duration_minutes"] * 60
             water_limit = self.config["water_interval_minutes"] * 60

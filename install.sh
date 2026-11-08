@@ -16,3 +16,4 @@ chmod +x web_server.py
 echo ""
 echo "Installation complete!"
 echo "To run your pet, execute: ./run.sh or python3 main.py"
+

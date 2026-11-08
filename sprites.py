@@ -139,6 +139,8 @@ def draw_muzzle(draw, head_y=26, mode="normal"):
         draw.arc([44, head_y + 26, 52, head_y + 31], start=0, end=180, fill=p["outline"], width=1)
     elif mode == "happy" or mode == "petted":
         draw.polygon([(45, head_y + 26), (51, head_y + 26), (48, head_y + 29)], fill=p["mouth"])
+    elif mode == "eating":
+        draw.ellipse([45, head_y + 25, 51, head_y + 29], fill=p["mouth"])
     else:
         draw.line([(48, head_y + 25), (48, head_y + 27)], fill=p["outline"])
         draw.arc([44, head_y + 25, 48, head_y + 28], start=180, end=360, fill=p["outline"])
@@ -182,6 +184,15 @@ def draw_body_and_paws(draw, mode="normal", bounce=0):
     elif mode == "peeking":
         draw.ellipse([34, by - 2, 42, by + 6], fill=p["fur_main"], outline=p["outline"])
         draw.ellipse([54, by - 2, 62, by + 6], fill=p["fur_main"], outline=p["outline"])
+    elif mode == "walking":
+        paw_offset = 3 if (bounce % 2 == 0) else -3
+        draw.ellipse([36 + paw_offset, by + 16, 44 + paw_offset, by + 27], fill=p["fur_main"], outline=p["outline"])
+        draw.ellipse([52 - paw_offset, by + 16, 60 - paw_offset, by + 27], fill=p["fur_main"], outline=p["outline"])
+    elif mode == "eating":
+        draw.ellipse([36, by + 16, 44, by + 27], fill=p["fur_main"], outline=p["outline"])
+        draw.ellipse([52, by + 16, 60, by + 27], fill=p["fur_main"], outline=p["outline"])
+        draw.ellipse([42, by + 20, 54, by + 26], fill=(56, 189, 248, 255), outline=p["outline"])
+        draw.polygon([(54, by + 23), (59, by + 20), (59, by + 26)], fill=(56, 189, 248, 255))
     else:
         draw.ellipse([36, by + 16, 44, by + 27], fill=p["fur_main"], outline=p["outline"])
         draw.ellipse([52, by + 16, 60, by + 27], fill=p["fur_main"], outline=p["outline"])
@@ -248,6 +259,12 @@ def render_cat_frame(mode="idle", frame_idx=0):
 
     if mode == "happy":
         bounce = -2 if (frame_idx % 2 == 0) else 0
+        head_y += bounce
+    elif mode == "walking":
+        bounce = -1 if (frame_idx % 2 == 0) else 1
+        head_y += bounce
+    elif mode == "eating":
+        bounce = 1 if (frame_idx % 2 == 0) else 0
         head_y += bounce
     elif mode == "petted":
         bounce = 1 if (frame_idx % 2 == 0) else 0

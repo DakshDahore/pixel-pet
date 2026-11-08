@@ -55,7 +55,7 @@ class TestPixelPetCore(unittest.TestCase):
         modes = [
             "idle", "happy", "petted", "sad", "angry", "turned",
             "scratching", "peeking", "sleeping", "falling",
-            "frightened", "empathy"
+            "frightened", "empathy", "walking", "eating"
         ]
         expected_size = (CANVAS_SIZE * SCALE, CANVAS_SIZE * SCALE)
         for m in modes:
@@ -141,6 +141,26 @@ class TestPixelPetCore(unittest.TestCase):
         self.assertIn("idle_watch", total_actions)
         self.assertIn("curled_catnap", total_actions)
 
+    def test_11_int8_quantization_parity(self):
+        brain = NeuralBrain()
+        self.assertTrue(brain.quantized_mode)
+        self.assertEqual(len(brain.w1_int8), brain.num_inputs)
+        self.assertEqual(len(brain.w2_int8), brain.num_hidden)
+
+        for row in brain.w1_int8:
+            for val in row:
+                self.assertTrue(-128 <= val <= 127)
+
+        for row in brain.w2_int8:
+            for val in row:
+                self.assertTrue(-128 <= val <= 127)
+
+        test_inputs = [0.8, 0.5, 0.1, 0.4, 0.2, 0.7, 0.0]
+        logits_int8 = brain.forward_quantized_int8(test_inputs)
+        self.assertEqual(len(logits_int8), brain.num_actions)
+        for logit in logits_int8:
+            self.assertFalse(math.isnan(logit))
+
 def run_all_tests():
     print("======================================================================")
     print("       PIXEL PET AUTOMATED TEST SUITE & 24-HOUR STRESS TEST")
@@ -155,3 +175,4 @@ if __name__ == "__main__":
     success = run_all_tests()
     if not success:
         exit(1)
+

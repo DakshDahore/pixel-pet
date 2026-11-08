@@ -24,3 +24,4 @@ echo "Launching Pixel Pet in background..."
 nohup python3 main.py >/dev/null 2>&1 &
 
 echo "Pixel Pet is now running on your desktop!"
+

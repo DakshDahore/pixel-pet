@@ -120,6 +120,34 @@ class DesktopPetWindow:
             if self.tracker.alarm_ringing:
                 self.tracker.dismiss_alarm()
 
+    def feed_fish_treat(self):
+        if self.is_tantrum_running:
+            return
+        self.set_gesture("eating", 3500)
+        sound_system.cute(dynamic=True)
+        self.show_bubble("Nom nom nom! Crunchy fish treat! 🐟✨", 3500)
+        if self.tracker:
+            self.tracker.record_petting()
+
+    def patrol_walk(self, distance=70):
+        if self.is_tantrum_running or self.is_dragging or (self.tracker and self.tracker.is_sleeping):
+            return
+
+        direction = -1 if (self.pos_x > self.screen_w // 2) else 1
+        self.set_gesture("walking")
+
+        def _step(step_count=0):
+            if step_count < 14:
+                self.pos_x += direction * 5
+                self.pos_x = max(10, min(self.screen_w - self.pet_w - 10, self.pos_x))
+                self.root.geometry(f"{self.pet_w}x{self.pet_h}+{self.pos_x}+{self.pos_y}")
+                self.root.after(90, lambda: _step(step_count + 1))
+            else:
+                self.set_gesture("idle")
+                self.show_bubble("Stretch stretch! Paws feel good. :3", 2500)
+
+        _step()
+
     def set_gesture(self, gesture_name, duration_ms=0):
         self.current_gesture = gesture_name
         self.frame_idx = 0
