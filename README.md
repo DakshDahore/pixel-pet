@@ -1,103 +1,152 @@
-# 🐱 Pixel Pet - Desktop Cat Companion & Screen Time Guardian
+# 🐱 Pixel Pet — Desktop Cat Companion & Cognitive Neural Brain
 
-A cute and dramatic pixel art cat that lives on your desktop, monitors your screen time, reminds you to take breaks and drink water, watches for AI responses, and throws a hilarious tantrum when you ignore it!
+[![Live Web Demo](https://img.shields.io/badge/Live_Demo-dakshdahore.github.io%2Fpixel--pet-00C7B7?style=for-the-badge&logo=github)](https://dakshdahore.github.io/pixel-pet/)
+[![Tests](https://img.shields.io/badge/Automated_Tests-10%2F10_Passing-brightgreen?style=for-the-badge)](test_suite.py)
+[![Python Version](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python)](https://python.org)
+[![Hackatime Week 3](https://img.shields.io/badge/Hackatime-Week_3_Submission-F59E0B?style=for-the-badge)](https://hackatime.hackclub.com)
 
-Built for **Hackatime Week 3**.
+**Pixel Pet** is an adorable, dramatic, and intelligent pixel art cat companion that lives on your desktop. It monitors your screen time, reminds you to hydrate, guards your sleep, detects when AI finishes generating answers, and throws a hilarious dramatic tantrum if you ignore it!
 
----
-
-## ✨ Features
-
-- **🐾 10 Gestures & Animations:**
-  1. `Idle`: Sits on your screen edge or taskbar, tail swishing, blinking.
-  2. `Happy`: Bounces excitedly with wagging tail and sparkling hearts.
-  3. `Petted`: Purrs contentedly with closed bliss eyes (`^._.^`) and vibrating warmth.
-  4. `Sad`: Droopy ears, tearful puppy eyes.
-  5. `Angry`: Flattened ears, angry hissing mouth, irritated tail.
-  6. `Turned Back`: Crosses paws and gives you the silent treatment when ignored.
-  7. `Scratching`: Scratches its ear and head against the screen edge.
-  8. `Peeking`: Peeks over the side of windows like a cute bookmark.
-  9. `Sleeping`: Curls up on your window edge with animated `Z z z` bubbles.
-  10. `Falling`: Loses footing, flails paws, and lands gracefully on all fours.
-
-- **⚡ The Dramatic Climax (Screen Scratch & Big Tail Wipe):**
-  If you work for too long without resting, the cat darts into the center of the screen, claws your screen with realistic scratch marks, panics at what it just did, scrambles away, creeps back, and vigorously sweeps its **BIG FLUFFY BUSHY TAIL** over the scratch to wipe it completely clean!
-
-- **🔊 6 Procedural Cat Sounds:**
-  - Happy Meow (cheerful chirpy rising chirp)
-  - Cute Meow (soft high-pitched kitten mew)
-  - Sad Meow (descending mournful whimper)
-  - Angry Hiss (low irritated rumble + sharp air hiss)
-  - Scared Yowl (startled screech)
-  - Morning Alarm Fanfare (rhythmic energetic wake-up meows)
-  - *Plus real Purring, Screen Claw Scraping, and Soft Tail Squeegee sounds!*
-  - Generated using Python's standard `wave` and `math` libraries (no missing mp3 errors!).
-
-- **⏱ Smart Pomodoro & Hydration Tracker:**
-  - Customizable work session and short break timers.
-  - Water hydration interval reminder with quick "+1 Glass" tracker.
-  - 4-stage escalation system: Empathy -> Sadness -> Irritation -> Cold Shoulder -> Screen Scratch!
-
-- **🤖 AI Response Detector ("You're Up!"):**
-  - Automatically monitors clipboard activity (or triggered via hotkey/companion app).
-  - When ChatGPT, Claude, Gemini, or an IDE finishes generating an answer, the cat perks up and announces: *"You're up! AI has finished generating your answer! 🐱✨"*.
-
-- **🌙 Bedtime & Morning Wake-Up Alarm:**
-  - Detects bedtime: curls up into sleep mode.
-  - Morning alarm: plays cheerful fanfare meows to start your day.
-
-- **🎛 Companion Control Panel App:**
-  - Set timers, customize bedtime, test all 10 gestures, trigger sounds, and track productivity streaks.
+Equipped with an **unsupervised Cognitive Neural Brain (`neural_brain.py`)** that dynamically adapts its behavior based on your active window (VS Code, YouTube, ChatGPT, Docs), idle durations (>5 min AFK), circadian cycles, and bonding memory.
 
 ---
 
-## 🚀 How to Run
+## ⚡ Try the Live Web Demo
+**Experience it right now in your browser without installing anything:**  
+👉 **[https://dakshdahore.github.io/pixel-pet/](https://dakshdahore.github.io/pixel-pet/)**
 
-### 1. Native Desktop App (Python)
+---
 
-Requires Python 3.8+ and Pillow:
+## ✨ Full Feature Overview
 
+### 🧠 1. Adaptive Neural Cognitive Brain (`neural_brain.py`)
+* **7-Feature Input Vector:**
+  - `Context Score`: Detects active app (Coding IDE = 0.9, Learning Docs = 0.7, AI Tool = 0.85, YouTube/Distraction = 0.25).
+  - `Work Strain`: Normalized continuous session duration.
+  - `Inactivity / AFK`: Measures mouse/keyboard idle time (>5 min AFK activates catnap mode).
+  - `Circadian Phase`: 24-hour day/night cycle.
+  - `Thirst Metric`: Minutes elapsed since water logged.
+  - `Affection Level`: Grows whenever you pet the cat or take breaks.
+  - `Tantrum Fatigue`: Memory decay preventing spam tantrums.
+* **11 Softmax Action Logits with Temperature Exploration:**
+  The cat never acts like a rigid robot — each reaction is an organic, emergent behavior.
+* **Habit Plasticity & Memory (`cat_memory.json`):**
+  Remembers your habits across reboots, tracks bonding streak days, and preserves weight adjustments.
+
+### 🐾 2. 10 Expressive Gestures & Animations
+1. `Idle Watch`: Sits on screen edge or taskbar, tail gently swaying, periodic blinking.
+2. `Happy Bounce`: Bounces with wagging tail and floating heart sparkles.
+3. `Petted Purr`: Closed eyes in bliss (`^._.^`), vibration, purring hearts.
+4. `Sad Pout`: Droopy ears, downward mouth, puppy tear droplet.
+5. `Angry Hiss`: Flattened ears, furrowed brow, sharp hiss.
+6. `Turned Cold`: Pouting silent treatment with its back turned to you.
+7. `Curious Scratch`: Hind leg scratching behind the ear at the screen edge to grab attention.
+8. `Peeking Bookmark`: Paws clutching the window edge like a cute bookmark.
+9. `Curled Catnap`: Curls up on your window edge with animated `Z z z` bubbles when you are AFK.
+10. `Falling`: Slipped off an edge, paws flailing, landing on all fours.
+11. `Empathy Beg`: Big glistening kitten eyes begging you to take a rest.
+
+### ⚡ 3. The Dramatic Climax (Screen Scratch & Big Tail Wipe)
+If you work too long without resting:
+1. Cat darts to the center of your screen.
+2. Claws your screen with realistic claw marks and scratch sound effects!
+3. Panics at what it just did (`frightened` face with scared yowl) and scrambles away.
+4. Sneaks back cautiously.
+5. Vigorously sweeps its **BIG FLUFFY BUSHY TAIL** over the scratch like a feather duster until your screen is wiped clean!
+6. Meows innocently, smiles (`:3`), and trots back to the corner like nothing happened!
+
+### 🔊 4. 6 Dynamic Procedural Cat Sounds
+Synthesized using pure Python standard library `wave` and `math` (zero external audio file dependencies):
+- **Happy Meow:** Upbeat chirpy rising meow with dynamic micro-pitch jitter.
+- **Cute Meow:** Soft high-pitched kitten mew.
+- **Sad Meow:** Descending mournful whimper with tremolo.
+- **Angry Hiss:** Low 120 Hz growl mixed with sharp air hiss.
+- **Scared Yowl:** Startled screech with panic frequency modulation.
+- **Morning Alarm Fanfare:** Joyful 3-chirp wake-up fanfare.
+- *Plus continuous acoustic purring, claw scratching, and soft tail wipe swooshes!*
+
+### 🤖 5. AI Response Watcher ("You're Up!")
+- Automatically monitors your clipboard for completed responses from ChatGPT, Claude, Gemini, Copilot, or DeepSeek.
+- Cat perks up, jumps, and announces: *"You're up! AI has finished generating your answer! 🐱✨"*.
+
+### 🌙 6. Bedtime & Morning Wake-Up Alarm
+- Bedtime detection: Curls up into sleeping mode at your bedtime.
+- Morning alarm: Wakes you up with energetic wake-up meows.
+
+---
+
+## 🚀 One-Click Install & Run
+
+### Linux & macOS
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/pixel-pet.git
+git clone https://github.com/DakshDahore/pixel-pet.git
 cd pixel-pet
 
-# Install simple requirement
-pip install -r requirements.txt
+# One-click install dependencies
+./install.sh
 
-# Run the desktop pet!
-python3 main.py
+# Launch the desktop pet!
+./run.sh
 ```
 
-- **Left-click** the cat to pet it!
-- **Click and drag** to move the cat anywhere on your screen.
-- **Right-click or Double-click** to open the Companion Control Panel.
-
-### 2. Live Web Demo
-
-You can also run the web demo locally or host it on GitHub Pages:
-
-```bash
-python3 web_server.py
-```
-Or open `index.html` directly in any modern browser!
+### Windows
+- **Install:** Double-click `install.bat`
+- **Run (Backgroundless):** Double-click `run.bat` or `main.pyw` (runs transparently with **no black terminal window**!)
 
 ---
 
-## 📁 Project Structure
+## 🧪 Automated Test Suite (10/10 Passing)
+
+Run the full automated test suite & 24-hour stress simulation:
+```bash
+python3 test_suite.py
+```
+```text
+======================================================================
+       PIXEL PET AUTOMATED TEST SUITE & 24-HOUR STRESS TEST
+======================================================================
+test_01_sound_synthesis (__main__.TestPixelPetCore.test_01_sound_synthesis) ... ok
+test_02_dynamic_audio_variations (__main__.TestPixelPetCore.test_02_dynamic_audio_variations) ... ok
+test_03_sprite_frames (__main__.TestPixelPetCore.test_03_sprite_frames) ... ok
+test_04_scratch_overlay (__main__.TestPixelPetCore.test_04_scratch_overlay) ... ok
+test_05_neural_brain_forward_pass (__main__.TestPixelPetCore.test_05_neural_brain_forward_pass) ... ok
+test_06_neural_brain_afk_behavior (__main__.TestPixelPetCore.test_06_neural_brain_afk_behavior) ... ok
+test_07_neural_learning_and_memory (__main__.TestPixelPetCore.test_07_neural_learning_and_memory) ... ok
+test_08_window_classification (__main__.TestPixelPetCore.test_08_window_classification) ... ok
+test_09_screen_tracker_timers (__main__.TestPixelPetCore.test_09_screen_tracker_timers) ... ok
+test_10_simulated_24h_lifecycle_stress_test (__main__.TestPixelPetCore.test_10_simulated_24h_lifecycle_stress_test) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.204s
+
+OK
+```
+
+---
+
+## 📁 Repository Structure
 
 ```
 pixel-pet/
 ├── main.py              # Main desktop application launcher
+├── main.pyw             # Windows backgroundless launcher
 ├── pet_window.py        # Frameless transparent desktop pet window
-├── control_panel.py     # Companion settings, timer, and soundboard app
+├── control_panel.py     # Companion settings, timer, customizer & brain panel
+├── neural_brain.py      # 16-neuron cognitive brain with Hebbian learning
+├── window_sensor.py     # Cross-platform active window & AFK/idle sensor
 ├── sprites.py           # Pixel art generator for all 10 gestures
-├── sound_player.py      # Sound synthesizer (WAV audio generator & player)
-├── screen_tracker.py    # Screen time tracker, escalation engine & AI watcher
+├── sound_player.py      # Procedural sound synthesizer with dynamic variation
+├── screen_tracker.py    # Screen time tracker & AI response detector
+├── test_suite.py        # Automated unit & 24-hr simulation test suite
 ├── web_server.py        # Lightweight local web demo server
 ├── index.html           # Interactive web demo for Hackatime submission
-├── requirements.txt     # Single dependency (Pillow)
-└── assets/              # Sprites and reference artwork
+├── install.sh           # One-click Linux/Mac installer
+├── run.sh               # One-click Linux/Mac launcher
+├── install.bat          # One-click Windows installer
+├── run.bat              # One-click Windows backgroundless launcher
+├── requirements.txt     # Single lightweight requirement (pillow)
+└── assets/              # Generated sprite frames & reference artwork
 ```
 
 ---
@@ -105,4 +154,6 @@ pixel-pet/
 ## 🏆 Hackatime Submission Info
 - **Project Name:** Pixel Pet
 - **Description:** A virtual pet which informs when the watch time is too much, tells to take breaks, grabs attention, and informs when AI gives response.
-- **Author:** Daksh
+- **Repository:** https://github.com/DakshDahore/pixel-pet
+- **Live Demo Link:** https://dakshdahore.github.io/pixel-pet/
+- **Author:** Daksh Dahore

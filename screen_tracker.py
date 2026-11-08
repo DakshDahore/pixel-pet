@@ -3,6 +3,8 @@ import json
 import os
 import threading
 from datetime import datetime
+from window_sensor import window_sensor
+from neural_brain import neural_brain
 
 CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pet_config.json")
 
@@ -14,6 +16,7 @@ DEFAULT_CONFIG = {
     "wake_time": "07:00",
     "alarm_enabled": True,
     "ai_watcher_enabled": True,
+    "neural_brain_enabled": True,
     "sound_enabled": True,
     "cat_name": "Kuro",
     "eye_color": "green",
@@ -23,10 +26,11 @@ DEFAULT_CONFIG = {
 }
 
 class ScreenTimeTracker:
-    def __init__(self, on_state_change=None, on_notification=None):
+    def __init__(self, on_state_change=None, on_notification=None, on_neural_action=None):
         self.config = self.load_config()
         self.on_state_change = on_state_change
         self.on_notification = on_notification
+        self.on_neural_action = on_neural_action
 
         self.session_seconds = 0
         self.total_seconds = self.config.get("total_work_seconds", 0)
@@ -41,6 +45,11 @@ class ScreenTimeTracker:
 
         self.last_clipboard_text = ""
         self.ai_watching = self.config.get("ai_watcher_enabled", True)
+        self.neural_enabled = self.config.get("neural_brain_enabled", True)
+
+        self.last_window_category = "general"
+        self.last_neural_decision_time = time.time()
+        self.current_neural_action = "idle_watch"
 
         self.running = True
         self.worker_thread = threading.Thread(target=self._tracker_loop, daemon=True)
@@ -79,6 +88,7 @@ class ScreenTimeTracker:
         self.break_overdue_seconds = 0
         self.config["breaks_taken"] = self.config.get("breaks_taken", 0) + 1
         self.save_config()
+        neural_brain.learn_from_break_taken()
         if self.on_state_change:
             self.on_state_change("happy", "Good job taking a break! Relax your eyes~")
 
@@ -94,8 +104,12 @@ class ScreenTimeTracker:
         self.config["water_glasses_logged"] = self.config.get("water_glasses_logged", 0) + 1
         self.water_timer_seconds = 0
         self.save_config()
+        neural_brain.learn_from_break_taken()
         if self.on_state_change:
             self.on_state_change("petted", "Gulp gulp! Stay hydrated! Good job! :3")
+
+    def record_petting(self):
+        neural_brain.learn_from_petting()
 
     def check_time_schedules(self):
         now_str = datetime.now().strftime("%H:%M")
@@ -119,6 +133,55 @@ class ScreenTimeTracker:
         if self.on_state_change:
             self.on_state_change("happy", "Yay! Have a wonderful day today!")
 
+    def evaluate_neural_brain(self):
+        now = time.time()
+        if now - self.last_neural_decision_time < 15.0:
+            return
+
+        self.last_neural_decision_time = now
+
+        title = window_sensor.get_active_window_title()
+        category = window_sensor.classify_window(title)
+        self.last_window_category = category
+        idle_sec = window_sensor.get_idle_seconds()
+
+        cat_scores = {
+            "coding": 0.9,
+            "study_docs": 0.7,
+            "ai_tool": 0.85,
+            "entertainment": 0.25,
+            "chat": 0.45,
+            "general": 0.5
+        }
+        score_context = cat_scores.get(category, 0.5)
+
+        work_limit = max(1, self.config["work_duration_minutes"] * 60)
+        norm_work = self.session_seconds / float(work_limit)
+        norm_idle = min(1.0, idle_sec / 300.0)
+
+        current_hour = datetime.now().hour + datetime.now().minute / 60.0
+        norm_circadian = current_hour / 24.0
+
+        water_limit = max(1, self.config["water_interval_minutes"] * 60)
+        norm_thirst = min(1.0, self.water_timer_seconds / float(water_limit))
+
+        inputs = [
+            score_context,
+            norm_work,
+            norm_idle,
+            norm_circadian,
+            norm_thirst,
+            neural_brain.affection,
+            neural_brain.tantrum_fatigue
+        ]
+
+        action, probs = neural_brain.forward(inputs)
+        self.current_neural_action = action
+        neural_brain.decay_tantrum_fatigue()
+
+        if self.on_neural_action:
+            self.on_neural_action(action, category, title, probs)
+
     def _tracker_loop(self):
         while self.running:
             time.sleep(1.0)
@@ -139,7 +202,9 @@ class ScreenTimeTracker:
                 if self.on_notification:
                     self.on_notification("water", "Time for a sip of water! Stay hydrated!")
 
-            if self.current_state == "working":
+            if self.neural_enabled:
+                self.evaluate_neural_brain()
+            elif self.current_state == "working":
                 if self.session_seconds > work_limit:
                     self.break_overdue_seconds = self.session_seconds - work_limit
                     self._update_escalation()
@@ -169,12 +234,6 @@ class ScreenTimeTracker:
                 self.on_state_change("dramatic_tantrum", "THAT'S IT! TIME FOR A BREAK!!")
 
     def _clipboard_loop(self):
-        try:
-            import tkinter as tk
-            root = None
-        except Exception:
-            return
-
         while self.running:
             time.sleep(1.5)
             if not self.ai_watching:

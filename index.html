@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pixel Pet - Desktop Cat Companion</title>
+  <title>Pixel Pet - Desktop Cat Companion & Neural Brain</title>
   <style>
     * {
       box-sizing: border-box;
@@ -52,13 +52,22 @@
       font-weight: 600;
     }
 
+    .badge-ai {
+      background: #9333ea;
+      color: #ffffff;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
     .main-container {
       display: grid;
-      grid-template-columns: 1fr 380px;
+      grid-template-columns: 1fr 400px;
       gap: 20px;
       padding: 20px;
       flex: 1;
-      max-width: 1400px;
+      max-width: 1440px;
       margin: 0 auto;
       width: 100%;
     }
@@ -68,7 +77,7 @@
       border: 3px solid #312e81;
       border-radius: 12px;
       position: relative;
-      height: 620px;
+      height: 640px;
       overflow: hidden;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
       background-image: 
@@ -78,10 +87,10 @@
 
     .mock-window {
       position: absolute;
-      top: 60px;
-      left: 60px;
-      width: 480px;
-      height: 320px;
+      top: 50px;
+      left: 50px;
+      width: 500px;
+      height: 330px;
       background: #0f172a;
       border-radius: 8px;
       border: 1px solid #334155;
@@ -97,7 +106,7 @@
       border-top-right-radius: 8px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
       font-size: 0.8rem;
       color: #94a3b8;
     }
@@ -122,6 +131,8 @@
       font-size: 0.85rem;
       color: #38bdf8;
       line-height: 1.5;
+      flex: 1;
+      overflow-y: auto;
     }
 
     .mock-taskbar {
@@ -169,7 +180,7 @@
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
       position: relative;
       text-align: center;
-      max-width: 180px;
+      max-width: 190px;
       display: block;
       animation: pop 0.2s ease;
     }
@@ -218,8 +229,8 @@
       padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      height: 620px;
+      gap: 14px;
+      height: 640px;
       overflow-y: auto;
     }
 
@@ -237,6 +248,7 @@
       margin-bottom: 8px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
 
     .btn-grid {
@@ -285,10 +297,53 @@
       background: #15803d;
     }
 
+    .btn-purple {
+      background: #9333ea;
+      color: #ffffff;
+    }
+    .btn-purple:hover {
+      background: #7e22ce;
+    }
+
     .stats-text {
       font-size: 0.8rem;
       line-height: 1.6;
       color: #cbd5e1;
+    }
+
+    .bar-container {
+      background: #0f172a;
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .bar-fill {
+      background: #38bdf8;
+      height: 100%;
+      width: 50%;
+      transition: width 0.3s ease;
+    }
+
+    .bar-purple {
+      background: #c084fc;
+    }
+
+    .bar-pink {
+      background: #f472b6;
+    }
+
+    select {
+      background: #0f172a;
+      color: #f1f5f9;
+      border: 1px solid #334155;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      width: 100%;
+      margin-bottom: 8px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -299,9 +354,10 @@
       <span style="font-size: 1.5rem;">🐱</span>
       <h1>Pixel Pet</h1>
       <span class="badge">Hackatime Week 3</span>
+      <span class="badge-ai">🧠 Neural Brain v2</span>
     </div>
     <div style="font-size: 0.85rem; color: #94a3b8;">
-      Desktop Screen Time & Health Guardian
+      Desktop Screen Time & Cognitive Adaptive Guardian
     </div>
   </header>
 
@@ -314,14 +370,16 @@
             <div class="dot dot-yellow"></div>
             <div class="dot dot-green"></div>
           </div>
-          <span>workspace - main.py</span>
+          <span id="window-title-header">workspace - main.py</span>
+          <span style="font-size: 0.7rem; color: #38bdf8;" id="window-category-tag">[CODING]</span>
         </div>
-        <div class="mock-code">
+        <div class="mock-code" id="mock-code-content">
           # Coding my Hackatime project...<br>
           import pixel_pet<br>
+          from neural_brain import NeuralBrain<br><br>
           cat = pixel_pet.Cat("Kuro")<br>
-          cat.start_screen_time_tracker()<br>
-          print("Winning that laptop for sure!! 🚀")
+          cat.activate_neural_brain()<br>
+          print("Autonomous cognitive desktop pet active! 🐱🚀")
         </div>
       </div>
 
@@ -340,30 +398,58 @@
       <div class="mock-taskbar">
         <span>⚡ Screen Active: <strong id="timer-display">25:00</strong></span>
         <span>Hydration: <strong id="water-count">0</strong> glasses 🥛</span>
+        <span>Brain: <strong id="brain-action-tag" style="color: #c084fc;">IDLE WATCH</strong></span>
         <span id="current-clock">17:05</span>
       </div>
     </div>
 
     <div class="control-panel">
       <div class="panel-section">
+        <div class="section-title">
+          <span>🧠 NEURAL COGNITIVE BRAIN</span>
+          <span style="font-size: 0.7rem; color: #a855f7;">AI Adaptive</span>
+        </div>
+        <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Simulate User Activity Context:</label>
+        <select id="sim-window-select" onchange="simulateContextChange()">
+          <option value="coding">VS Code / IDE (Deep Focus)</option>
+          <option value="entertainment">YouTube / Netflix (Distraction)</option>
+          <option value="ai_tool">ChatGPT / Claude (AI Answering)</option>
+          <option value="study_docs">Docs & GitHub (Learning)</option>
+          <option value="afk">User AFK / Idle (>5 minutes away)</option>
+        </select>
+
+        <div style="font-size: 0.75rem; margin-top: 6px; display: flex; justify-content: space-between;">
+          <span>Affection Bond:</span>
+          <span id="affection-val">65%</span>
+        </div>
+        <div class="bar-container"><div class="bar-fill bar-pink" id="affection-bar" style="width: 65%;"></div></div>
+
+        <div style="font-size: 0.75rem; margin-top: 6px; display: flex; justify-content: space-between;">
+          <span>Patience Meter:</span>
+          <span id="patience-val">80%</span>
+        </div>
+        <div class="bar-container"><div class="bar-fill bar-purple" id="patience-bar" style="width: 80%;"></div></div>
+      </div>
+
+      <div class="panel-section">
         <div class="section-title">⏱ POMODORO & BREAKS</div>
         <div style="display: flex; gap: 8px; margin-bottom: 8px;">
           <button class="btn-success" style="flex: 1;" onclick="takeBreak()">Take Break</button>
           <button class="btn-primary" style="flex: 1;" onclick="resumeWork()">Resume Work</button>
         </div>
-        <button style="width: 100%;" onclick="logWater()">Log Glass of Water 🥛</button>
+        <button style="width: 100%;" onclick="logWater()">Log Glass of Water 🥛 (+1)</button>
       </div>
 
       <div class="panel-section">
         <div class="section-title">⚡ DRAMATIC EVENT</div>
         <button class="btn-danger" style="width: 100%;" onclick="triggerDramaticEvent()">
-          Trigger Screen Scratch & Tail Wipe!
+          Trigger Screen Scratch & Big Tail Wipe!
         </button>
       </div>
 
       <div class="panel-section">
         <div class="section-title">🤖 AI WATCHER</div>
-        <button class="btn-primary" style="width: 100%;" onclick="simulateAiAlert()">
+        <button class="btn-purple" style="width: 100%;" onclick="simulateAiAlert()">
           Simulate "AI Response Ready!" Alert 🐱✨
         </button>
       </div>
@@ -385,7 +471,7 @@
       </div>
 
       <div class="panel-section">
-        <div class="section-title">🔊 6 CAT SOUNDS</div>
+        <div class="section-title">🔊 6 DYNAMIC CAT SOUNDS</div>
         <div class="btn-grid">
           <button onclick="playSound('happy')">Happy Meow</button>
           <button onclick="playSound('cute')">Cute Meow</button>
@@ -397,12 +483,13 @@
       </div>
 
       <div class="panel-section">
-        <div class="section-title">📊 STATS</div>
+        <div class="section-title">📊 COGNITIVE STATS</div>
         <div class="stats-text" id="stats-text">
           Status: WORKING<br>
           Breaks taken: 0<br>
           Water drank: 0 glasses<br>
-          Compliance: 100%
+          Bond Streak: 1 day<br>
+          Autonomous Decisions: 0
         </div>
       </div>
     </div>
@@ -424,14 +511,15 @@
       const ctx = getAudio();
       if (!ctx) return;
       const now = ctx.currentTime;
+      const pitchMultiplier = 0.95 + Math.random() * 0.1;
 
       if (type === 'cute') {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(750, now);
-        osc.frequency.exponentialRampToValueAtTime(1020, now + 0.12);
-        osc.frequency.exponentialRampToValueAtTime(800, now + 0.35);
+        osc.frequency.setValueAtTime(750 * pitchMultiplier, now);
+        osc.frequency.exponentialRampToValueAtTime(1020 * pitchMultiplier, now + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(800 * pitchMultiplier, now + 0.35);
         gain.gain.setValueAtTime(0.001, now);
         gain.gain.linearRampToValueAtTime(0.4, now + 0.08);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
@@ -443,9 +531,9 @@
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(580, now);
-        osc.frequency.exponentialRampToValueAtTime(960, now + 0.18);
-        osc.frequency.exponentialRampToValueAtTime(700, now + 0.42);
+        osc.frequency.setValueAtTime(580 * pitchMultiplier, now);
+        osc.frequency.exponentialRampToValueAtTime(960 * pitchMultiplier, now + 0.18);
+        osc.frequency.exponentialRampToValueAtTime(700 * pitchMultiplier, now + 0.42);
         gain.gain.setValueAtTime(0.001, now);
         gain.gain.linearRampToValueAtTime(0.35, now + 0.1);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
@@ -457,8 +545,8 @@
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(640, now);
-        osc.frequency.exponentialRampToValueAtTime(380, now + 0.55);
+        osc.frequency.setValueAtTime(640 * pitchMultiplier, now);
+        osc.frequency.exponentialRampToValueAtTime(380 * pitchMultiplier, now + 0.55);
         gain.gain.setValueAtTime(0.001, now);
         gain.gain.linearRampToValueAtTime(0.35, now + 0.1);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
@@ -489,8 +577,8 @@
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(1850, now);
-        osc.frequency.exponentialRampToValueAtTime(750, now + 0.35);
+        osc.frequency.setValueAtTime(1850 * pitchMultiplier, now);
+        osc.frequency.exponentialRampToValueAtTime(750 * pitchMultiplier, now + 0.35);
         gain.gain.setValueAtTime(0.001, now);
         gain.gain.linearRampToValueAtTime(0.45, now + 0.05);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
@@ -504,7 +592,7 @@
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(800 + i * 200, t);
+          osc.frequency.setValueAtTime((800 + i * 200) * pitchMultiplier, t);
           gain.gain.setValueAtTime(0.001, t);
           gain.gain.linearRampToValueAtTime(0.3, t + 0.05);
           gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
@@ -562,6 +650,9 @@
     let breaksCount = 0;
     let secondsLeft = 25 * 60;
     let isWorking = true;
+    let affection = 65;
+    let patience = 80;
+    let neuralDecisions = 0;
 
     function showBubble(text, duration = 3000) {
       bubble.innerText = text;
@@ -590,15 +681,26 @@
       setGesture('petted', 2500);
       playSound('happy');
       showBubble('Purrrrr~ Love you! ^._.^', 2500);
+      affection = Math.min(100, affection + 5);
+      updateBars();
     });
+
+    function updateBars() {
+      document.getElementById('affection-val').innerText = `${affection}%`;
+      document.getElementById('affection-bar').style.width = `${affection}%`;
+      document.getElementById('patience-val').innerText = `${patience}%`;
+      document.getElementById('patience-bar').style.width = `${patience}%`;
+    }
 
     function takeBreak() {
       isWorking = false;
       breaksCount++;
+      patience = Math.min(100, patience + 15);
       setGesture('happy', 3000);
       playSound('happy');
       showBubble('Good job taking a break! Relax your eyes~', 3000);
       updateStats();
+      updateBars();
     }
 
     function resumeWork() {
@@ -613,10 +715,12 @@
     function logWater() {
       waterCount++;
       document.getElementById('water-count').innerText = waterCount;
+      patience = Math.min(100, patience + 8);
       setGesture('petted', 2000);
       playSound('cute');
       showBubble('Gulp gulp! Stay hydrated! Good job! :3', 2500);
       updateStats();
+      updateBars();
     }
 
     function simulateAiAlert() {
@@ -625,10 +729,62 @@
       showBubble('You\'re up! AI has finished generating your answer! 🐱✨', 4000);
     }
 
+    function simulateContextChange() {
+      const sel = document.getElementById('sim-window-select').value;
+      const header = document.getElementById('window-title-header');
+      const tag = document.getElementById('window-category-tag');
+      const code = document.getElementById('mock-code-content');
+      neuralDecisions++;
+
+      if (sel === 'coding') {
+        header.innerText = 'workspace - main.py';
+        tag.innerText = '[CODING]';
+        code.innerHTML = `# Coding session active...<br>cat.track_flow_state()<br>print("Focus is locked in! 🚀")`;
+        setGesture('idle', 3000);
+        showBubble("Watching you code diligently~ 🐱", 3000);
+        document.getElementById('brain-action-tag').innerText = 'IDLE WATCH';
+        playSound('cute');
+      } else if (sel === 'entertainment') {
+        header.innerText = 'Cute Animals - YouTube';
+        tag.innerText = '[DISTRACTION]';
+        code.innerHTML = `<span style="color: #f87171;">[YouTube Video Streaming...]</span><br>cat.detect_distraction()<br># Hey, aren't we supposed to be working?`;
+        setGesture('peeking', 3500);
+        showBubble("Caught you on a distraction tab! Back to work? :3", 3500);
+        document.getElementById('brain-action-tag').innerText = 'PEEKING BOOKMARK';
+        playSound('happy');
+      } else if (sel === 'ai_tool') {
+        header.innerText = 'ChatGPT / Claude - AI Assistant';
+        tag.innerText = '[AI TOOL]';
+        code.innerHTML = `<span style="color: #c084fc;">AI is generating response...</span><br>Token streams incoming...<br>Complete!`;
+        simulateAiAlert();
+        document.getElementById('brain-action-tag').innerText = 'AI ALERT READY';
+      } else if (sel === 'study_docs') {
+        header.innerText = 'Python Documentation - Google Chrome';
+        tag.innerText = '[LEARNING]';
+        code.innerHTML = `Reading docs & architecture specs...<br>Building knowledge graph.`;
+        setGesture('idle', 3000);
+        showBubble("Studying hard! I'll keep you company.", 3000);
+        document.getElementById('brain-action-tag').innerText = 'STUDY BUDDY';
+        playSound('cute');
+      } else if (sel === 'afk') {
+        header.innerText = 'Lock Screen / Idle';
+        tag.innerText = '[IDLE AFK]';
+        code.innerHTML = `<span style="color: #64748b;">No keyboard/mouse activity detected for 5 minutes...</span>`;
+        setGesture('sleeping', 5000);
+        showBubble("Zzz... taking a catnap while you're away.", 4000);
+        document.getElementById('brain-action-tag').innerText = 'CURLED CATNAP';
+        playSound('purr');
+      }
+
+      updateStats();
+    }
+
     function triggerDramaticEvent() {
       showBubble('HEY! BREAK TIME NOW!!', 1500);
       setGesture('angry');
       playSound('angry');
+      patience = Math.max(10, patience - 30);
+      updateBars();
 
       petContainer.style.transition = 'all 0.5s ease';
       petContainer.style.right = '40%';
@@ -680,7 +836,8 @@
         Status: ${isWorking ? 'WORKING' : 'ON BREAK'}<br>
         Breaks taken: ${breaksCount}<br>
         Water drank: ${waterCount} glasses 🥛<br>
-        Compliance: 100%
+        Bond Streak: 1 day<br>
+        Autonomous Decisions: ${neuralDecisions}
       `;
     }
 

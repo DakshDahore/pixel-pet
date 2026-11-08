@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 .DS_Store
 pet_config.json
+sounds/dynamic_var_*.wav

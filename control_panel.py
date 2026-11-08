@@ -2,6 +2,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import sound_player
 from sound_player import sound_system
+from neural_brain import neural_brain
+from window_sensor import window_sensor
+import sprites
 
 class ControlPanelWindow:
     def __init__(self, root, tracker, pet_window):
@@ -10,8 +13,8 @@ class ControlPanelWindow:
         self.pet_window = pet_window
 
         self.win = tk.Toplevel(self.root)
-        self.win.title("Pixel Pet - Companion & Timer App")
-        self.win.geometry("540x680")
+        self.win.title("Pixel Pet - Companion & Neural Brain App")
+        self.win.geometry("560x740")
         self.win.configure(bg="#0f172a")
 
         self.win.protocol("WM_DELETE_WINDOW", self.on_close)
@@ -25,8 +28,8 @@ class ControlPanelWindow:
 
         title_lbl = tk.Label(
             title_frame,
-            text="🐱 Pixel Pet Companion",
-            font=("Helvetica", 16, "bold"),
+            text="🐱 Pixel Pet Companion & Neural Brain",
+            font=("Helvetica", 15, "bold"),
             bg="#1e293b",
             fg="#f8fafc"
         )
@@ -34,8 +37,8 @@ class ControlPanelWindow:
 
         subtitle_lbl = tk.Label(
             title_frame,
-            text="Desktop Health & Pomodoro Guardian",
-            font=("Helvetica", 10),
+            text="Desktop Health, Adaptive Cognitive Brain & Screen Guardian",
+            font=("Helvetica", 9),
             bg="#1e293b",
             fg="#94a3b8"
         )
@@ -50,19 +53,92 @@ class ControlPanelWindow:
             lambda e: content_canvas.configure(scrollregion=content_canvas.bbox("all"))
         )
 
-        content_canvas.create_window((0, 0), window=scroll_frame, anchor="nw", width=520)
+        content_canvas.create_window((0, 0), window=scroll_frame, anchor="nw", width=540)
         content_canvas.configure(yscrollcommand=scrollbar.set)
 
-        content_canvas.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+        content_canvas.pack(side="left", fill="both", expand=True, padx=8, pady=8)
         scrollbar.pack(side="right", fill="y")
 
+        self.build_neural_brain_section(scroll_frame)
         self.build_timer_section(scroll_frame)
+        self.build_customizer_section(scroll_frame)
         self.build_hydration_section(scroll_frame)
         self.build_sleep_alarm_section(scroll_frame)
         self.build_ai_watcher_section(scroll_frame)
         self.build_gesture_studio_section(scroll_frame)
         self.build_soundboard_section(scroll_frame)
         self.build_stats_section(scroll_frame)
+
+    def build_neural_brain_section(self, parent):
+        box = tk.LabelFrame(parent, text="🧠 Neural Cognitive Brain (Adaptive AI)", bg="#1e293b", fg="#a855f7", font=("Helvetica", 11, "bold"), padx=12, pady=10)
+        box.pack(fill=tk.X, pady=6)
+
+        self.brain_var = tk.BooleanVar(value=self.tracker.neural_enabled)
+        chk = tk.Checkbutton(
+            box,
+            text="Enable Autonomous Neural Brain (predicts behavior via app, habit & idle)",
+            variable=self.brain_var,
+            bg="#1e293b",
+            fg="#cbd5e1",
+            selectcolor="#0f172a",
+            activebackground="#1e293b",
+            activeforeground="#c084fc",
+            command=self.toggle_neural_brain
+        )
+        chk.pack(anchor="w", pady=2)
+
+        self.brain_stats_lbl = tk.Label(
+            box,
+            text="Brain Status: Initializing...",
+            bg="#1e293b",
+            fg="#e2e8f0",
+            font=("Monospace", 9),
+            justify=tk.LEFT
+        )
+        self.brain_stats_lbl.pack(anchor="w", pady=4)
+
+        rethink_btn = tk.Button(box, text="⚡ Force Neural Brain Evaluation", bg="#7e22ce", fg="#ffffff", font=("Helvetica", 9, "bold"), command=self.force_neural_eval)
+        rethink_btn.pack(anchor="w", pady=4)
+
+    def build_customizer_section(self, parent):
+        box = tk.LabelFrame(parent, text="🎨 Cat Customizer (Eyes & Collar)", bg="#1e293b", fg="#ec4899", font=("Helvetica", 11, "bold"), padx=12, pady=10)
+        box.pack(fill=tk.X, pady=6)
+
+        row = tk.Frame(box, bg="#1e293b")
+        row.pack(fill=tk.X, pady=3)
+
+        tk.Label(row, text="Eye Color:", bg="#1e293b", fg="#cbd5e1", width=12, anchor="w").pack(side=tk.LEFT)
+
+        btn_green = tk.Button(row, text="Jiji Green", bg="#16a34a", fg="#ffffff", font=("Helvetica", 8, "bold"), command=lambda: self.change_eye_color("green"))
+        btn_green.pack(side=tk.LEFT, padx=3)
+
+        btn_blue = tk.Button(row, text="Fluffy Blue", bg="#0284c7", fg="#ffffff", font=("Helvetica", 8, "bold"), command=lambda: self.change_eye_color("blue"))
+        btn_blue.pack(side=tk.LEFT, padx=3)
+
+        btn_amber = tk.Button(row, text="Golden Amber", bg="#d97706", fg="#ffffff", font=("Helvetica", 8, "bold"), command=lambda: self.change_eye_color("amber"))
+        btn_amber.pack(side=tk.LEFT, padx=3)
+
+        btn_purple = tk.Button(row, text="Amethyst", bg="#9333ea", fg="#ffffff", font=("Helvetica", 8, "bold"), command=lambda: self.change_eye_color("purple"))
+        btn_purple.pack(side=tk.LEFT, padx=3)
+
+    def change_eye_color(self, color_name):
+        pal = sprites.PALETTE
+        if color_name == "blue":
+            pal["eye_color_top"] = (56, 189, 248, 255)
+            pal["eye_color_bot"] = (2, 132, 199, 255)
+        elif color_name == "amber":
+            pal["eye_color_top"] = (251, 191, 36, 255)
+            pal["eye_color_bot"] = (217, 119, 6, 255)
+        elif color_name == "purple":
+            pal["eye_color_top"] = (192, 132, 252, 255)
+            pal["eye_color_bot"] = (147, 51, 234, 255)
+        else:
+            pal["eye_color_top"] = (34, 197, 94, 255)
+            pal["eye_color_bot"] = (250, 204, 21, 255)
+
+        sprites.sprite_manager.cache.clear()
+        self.pet_window.show_bubble(f"Eye color changed to {color_name}! *meow*", 2500)
+        sound_system.cute(dynamic=True)
 
     def build_timer_section(self, parent):
         box = tk.LabelFrame(parent, text="⏱ Pomodoro & Screen Break Timers", bg="#1e293b", fg="#38bdf8", font=("Helvetica", 11, "bold"), padx=12, pady=10)
@@ -199,13 +275,13 @@ class ControlPanelWindow:
         dramatic_btn.pack(fill=tk.X, pady=8)
 
     def build_soundboard_section(self, parent):
-        box = tk.LabelFrame(parent, text="🔊 6 Cat Sounds Board", bg="#1e293b", fg="#fbbf24", font=("Helvetica", 11, "bold"), padx=12, pady=10)
+        box = tk.LabelFrame(parent, text="🔊 6 Dynamic Cat Sounds Board", bg="#1e293b", fg="#fbbf24", font=("Helvetica", 11, "bold"), padx=12, pady=10)
         box.pack(fill=tk.X, pady=6)
 
         sounds = [
-            ("Happy Meow", sound_system.happy),
-            ("Cute Meow", sound_system.cute),
-            ("Sad Meow", sound_system.sad),
+            ("Happy Meow", lambda: sound_system.happy(dynamic=True)),
+            ("Cute Meow", lambda: sound_system.cute(dynamic=True)),
+            ("Sad Meow", lambda: sound_system.sad(dynamic=True)),
             ("Angry Hiss", sound_system.angry),
             ("Frightened Yowl", sound_system.frightened),
             ("Morning Alarm", sound_system.alarm)
@@ -242,6 +318,15 @@ class ControlPanelWindow:
         )
         self.stats_lbl.pack(anchor="w")
 
+    def toggle_neural_brain(self):
+        self.tracker.neural_enabled = self.brain_var.get()
+        self.tracker.config["neural_brain_enabled"] = self.tracker.neural_enabled
+        self.tracker.save_config()
+
+    def force_neural_eval(self):
+        self.tracker.evaluate_neural_brain()
+        sound_system.cute(dynamic=True)
+
     def save_timers(self):
         try:
             w = int(self.work_entry.get())
@@ -254,19 +339,19 @@ class ControlPanelWindow:
             self.tracker.config["wake_time"] = self.wake_entry.get().strip()
             self.tracker.save_config()
             self.pet_window.show_bubble("Timers updated! I've got your back! :3", 3000)
-            sound_system.cute()
+            sound_system.cute(dynamic=True)
         except ValueError:
             messagebox.showerror("Invalid Input", "Please enter valid whole numbers for minutes!")
 
     def take_break_now(self):
         self.tracker.take_break()
         self.pet_window.set_gesture("happy", 3000)
-        sound_system.happy()
+        sound_system.happy(dynamic=True)
 
     def resume_work_now(self):
         self.tracker.resume_work()
         self.pet_window.set_gesture("idle")
-        sound_system.cute()
+        sound_system.cute(dynamic=True)
 
     def log_water(self):
         self.tracker.log_water_drink()
@@ -290,18 +375,18 @@ class ControlPanelWindow:
         self.tracker.save_config()
 
     def test_ai_alert(self):
-        sound_system.happy()
+        sound_system.happy(dynamic=True)
         self.pet_window.set_gesture("happy", 4000)
         self.pet_window.show_bubble("You're up! AI has finished generating your answer! 🐱✨", 4000)
 
     def trigger_gesture(self, g_name):
         self.pet_window.set_gesture(g_name, 3500)
         if g_name == "happy":
-            sound_system.happy()
+            sound_system.happy(dynamic=True)
         elif g_name == "petted":
             sound_system.purr()
         elif g_name == "sad":
-            sound_system.sad()
+            sound_system.sad(dynamic=True)
         elif g_name == "angry":
             sound_system.angry()
         elif g_name == "frightened":
@@ -309,7 +394,7 @@ class ControlPanelWindow:
         elif g_name == "sleeping":
             sound_system.purr()
         else:
-            sound_system.cute()
+            sound_system.cute(dynamic=True)
 
     def trigger_dramatic_tantrum(self):
         self.pet_window.trigger_dramatic_scratch_event()
@@ -329,6 +414,21 @@ class ControlPanelWindow:
             f"AI Watcher: {'Active' if self.tracker.ai_watching else 'Off'}"
         )
         self.stats_lbl.config(text=text)
+
+        title = window_sensor.cached_window_title
+        if len(title) > 28:
+            title = title[:25] + "..."
+
+        idle_sec = int(window_sensor.get_idle_seconds())
+        brain_text = (
+            f"Active Window: [{self.tracker.last_window_category.upper()}] {title}\n"
+            f"Inactivity: {idle_sec}s | Mode: {'Autonomous Neural' if self.tracker.neural_enabled else 'Pomodoro'}\n"
+            f"Current Brain Action: {self.tracker.current_neural_action}\n"
+            f"Affection: {int(neural_brain.affection * 100)}% ❤️ | Patience: {int(neural_brain.patience * 100)}% ⏳\n"
+            f"Total Pettings: {neural_brain.total_pets} | Bond Streak: {neural_brain.streak_days} days"
+        )
+        self.brain_stats_lbl.config(text=brain_text)
+
         self.win.after(1000, self.update_stats_loop)
 
     def on_close(self):

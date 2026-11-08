@@ -5,6 +5,7 @@ import random
 import sys
 from sprites import sprite_manager
 from sound_player import sound_system
+from window_sensor import window_sensor
 
 class DesktopPetWindow:
     def __init__(self, root, tracker=None):
@@ -61,11 +62,12 @@ class DesktopPetWindow:
         self.canvas.bind("<ButtonRelease-1>", self.on_mouse_up)
         self.canvas.bind("<Button-3>", self.open_control_panel)
         self.canvas.bind("<Double-Button-1>", self.open_control_panel)
+        self.canvas.bind("<Motion>", self.on_mouse_hover)
 
         self.control_panel_callback = None
 
         self.show_bubble("Hello! I'm your Pixel Pet! *meow*", 4000)
-        sound_system.happy()
+        sound_system.happy(dynamic=True)
 
         self.animate_loop()
 
@@ -76,10 +78,18 @@ class DesktopPetWindow:
         if self.control_panel_callback:
             self.control_panel_callback()
 
+    def on_mouse_hover(self, event):
+        abs_x = self.pos_x + event.x
+        abs_y = self.pos_y + event.y
+        window_sensor.update_mouse_activity(abs_x, abs_y)
+
     def on_mouse_down(self, event):
         self.is_dragging = True
         self.drag_start_x = event.x
         self.drag_start_y = event.y
+        abs_x = self.pos_x + event.x
+        abs_y = self.pos_y + event.y
+        window_sensor.update_mouse_activity(abs_x, abs_y)
 
     def on_mouse_drag(self, event):
         dx = event.x - self.drag_start_x
@@ -87,6 +97,9 @@ class DesktopPetWindow:
         self.pos_x += dx
         self.pos_y += dy
         self.root.geometry(f"{self.pet_w}x{self.pet_h}+{self.pos_x}+{self.pos_y}")
+        abs_x = self.pos_x + event.x
+        abs_y = self.pos_y + event.y
+        window_sensor.update_mouse_activity(abs_x, abs_y)
 
     def on_mouse_up(self, event):
         self.is_dragging = False
@@ -99,11 +112,13 @@ class DesktopPetWindow:
 
         self.set_gesture("petted", 2500)
         sound_system.purr()
-        sound_system.cute()
+        sound_system.cute(dynamic=True)
         self.show_bubble("Purrrrr~ Love you! ^._.^", 2500)
 
-        if self.tracker and self.tracker.alarm_ringing:
-            self.tracker.dismiss_alarm()
+        if self.tracker:
+            self.tracker.record_petting()
+            if self.tracker.alarm_ringing:
+                self.tracker.dismiss_alarm()
 
     def set_gesture(self, gesture_name, duration_ms=0):
         self.current_gesture = gesture_name
@@ -240,7 +255,7 @@ class DesktopPetWindow:
                 self.scratch_window.destroy()
                 self.scratch_window = None
 
-            sound_system.cute()
+            sound_system.cute(dynamic=True)
             self.set_gesture("petted")
             self.show_bubble("All clean! Like nothing happened :3", 3000)
 
@@ -274,5 +289,11 @@ class DesktopPetWindow:
         self.frame_idx = (self.frame_idx + 1) % 16
         if self.speech_timer > 0:
             self.speech_timer -= 150
+
+        try:
+            cur_x, cur_y = self.root.winfo_pointerxy()
+            window_sensor.update_mouse_activity(cur_x, cur_y)
+        except Exception:
+            pass
 
         self.root.after(150, self.animate_loop)

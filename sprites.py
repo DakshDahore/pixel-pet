@@ -317,3 +317,4 @@ if __name__ == "__main__":
         img = render_cat_frame(m, 0)
         img.save(f"assets/sprite_{m}.png")
     print("Done! Test frames saved to assets/.")
+
