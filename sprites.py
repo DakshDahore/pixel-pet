@@ -33,6 +33,84 @@ PALETTE = {
     "transparent": (0, 0, 0, 0)
 }
 
+BREED_PRESETS = {
+    "black": {
+        "outline": (16, 15, 24, 255),
+        "fur_deep": (22, 21, 30, 255),
+        "fur_main": (36, 35, 48, 255),
+        "fur_highlight": (56, 55, 74, 255),
+        "chest_fluff": (72, 70, 92, 255),
+        "chest_fluff_light": (94, 92, 118, 255),
+        "ear_shadow": (168, 85, 247, 255),
+        "ear_inner": (244, 114, 182, 255),
+        "ear_fluff": (253, 226, 236, 255),
+        "eye_color_top": (34, 197, 94, 255),
+        "eye_color_mid": (74, 222, 128, 255),
+        "eye_color_bot": (250, 204, 21, 255),
+    },
+    "orange": {
+        "outline": (120, 53, 15, 255),
+        "fur_deep": (194, 65, 12, 255),
+        "fur_main": (249, 115, 22, 255),
+        "fur_highlight": (251, 146, 60, 255),
+        "chest_fluff": (254, 243, 199, 255),
+        "chest_fluff_light": (255, 251, 235, 255),
+        "ear_shadow": (234, 88, 12, 255),
+        "ear_inner": (253, 164, 175, 255),
+        "ear_fluff": (255, 241, 242, 255),
+        "eye_color_top": (217, 119, 6, 255),
+        "eye_color_mid": (245, 158, 11, 255),
+        "eye_color_bot": (252, 211, 77, 255),
+    },
+    "white": {
+        "outline": (100, 116, 139, 255),
+        "fur_deep": (203, 213, 225, 255),
+        "fur_main": (248, 250, 252, 255),
+        "fur_highlight": (255, 255, 255, 255),
+        "chest_fluff": (241, 245, 249, 255),
+        "chest_fluff_light": (255, 255, 255, 255),
+        "ear_shadow": (244, 114, 182, 255),
+        "ear_inner": (251, 164, 185, 255),
+        "ear_fluff": (255, 245, 248, 255),
+        "eye_color_top": (2, 132, 199, 255),
+        "eye_color_mid": (56, 189, 248, 255),
+        "eye_color_bot": (125, 211, 252, 255),
+    },
+    "siamese": {
+        "outline": (41, 24, 18, 255),
+        "fur_deep": (68, 43, 33, 255),
+        "fur_main": (243, 232, 217, 255),
+        "fur_highlight": (254, 249, 243, 255),
+        "chest_fluff": (255, 255, 255, 255),
+        "chest_fluff_light": (255, 255, 255, 255),
+        "ear_shadow": (55, 30, 22, 255),
+        "ear_inner": (214, 143, 143, 255),
+        "ear_fluff": (250, 230, 220, 255),
+        "eye_color_top": (29, 78, 216, 255),
+        "eye_color_mid": (59, 130, 246, 255),
+        "eye_color_bot": (147, 197, 253, 255),
+    },
+    "calico": {
+        "outline": (30, 27, 36, 255),
+        "fur_deep": (180, 83, 9, 255),
+        "fur_main": (245, 245, 247, 255),
+        "fur_highlight": (255, 255, 255, 255),
+        "chest_fluff": (254, 215, 170, 255),
+        "chest_fluff_light": (255, 237, 213, 255),
+        "ear_shadow": (217, 119, 6, 255),
+        "ear_inner": (244, 114, 182, 255),
+        "ear_fluff": (255, 250, 250, 255),
+        "eye_color_top": (13, 148, 136, 255),
+        "eye_color_mid": (20, 184, 166, 255),
+        "eye_color_bot": (94, 234, 212, 255),
+    }
+}
+
+def set_cat_breed(breed_name):
+    if breed_name in BREED_PRESETS:
+        PALETTE.update(BREED_PRESETS[breed_name])
+        sprite_manager.cache.clear()
+
 def create_base_canvas():
     return Image.new("RGBA", (CANVAS_SIZE, CANVAS_SIZE), PALETTE["transparent"])
 

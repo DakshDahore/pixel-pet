@@ -102,8 +102,31 @@ class ControlPanelWindow:
         rethink_btn.pack(anchor="w", pady=4)
 
     def build_customizer_section(self, parent):
-        box = tk.LabelFrame(parent, text="🎨 Cat Customizer (Eyes & Collar)", bg="#1e293b", fg="#ec4899", font=("Helvetica", 11, "bold"), padx=12, pady=10)
+        box = tk.LabelFrame(parent, text="🎨 Cat Customizer (Breed, Eyes & Coat)", bg="#1e293b", fg="#ec4899", font=("Helvetica", 11, "bold"), padx=12, pady=10)
         box.pack(fill=tk.X, pady=6)
+
+        row_breed = tk.Frame(box, bg="#1e293b")
+        row_breed.pack(fill=tk.X, pady=3)
+
+        tk.Label(row_breed, text="Cat Breed:", bg="#1e293b", fg="#cbd5e1", width=12, anchor="w").pack(side=tk.LEFT)
+
+        breeds = [
+            ("Midnight", "black", "#1e1b4b"),
+            ("Orange", "orange", "#ea580c"),
+            ("Snow", "white", "#64748b"),
+            ("Siamese", "siamese", "#78350f"),
+            ("Calico", "calico", "#0d9488")
+        ]
+        for label, b_key, b_color in breeds:
+            btn = tk.Button(
+                row_breed,
+                text=label,
+                bg=b_color,
+                fg="#ffffff",
+                font=("Helvetica", 8, "bold"),
+                command=lambda k=b_key: self.change_cat_breed(k)
+            )
+            btn.pack(side=tk.LEFT, padx=2)
 
         row = tk.Frame(box, bg="#1e293b")
         row.pack(fill=tk.X, pady=3)
@@ -121,6 +144,11 @@ class ControlPanelWindow:
 
         btn_purple = tk.Button(row, text="Amethyst", bg="#9333ea", fg="#ffffff", font=("Helvetica", 8, "bold"), command=lambda: self.change_eye_color("purple"))
         btn_purple.pack(side=tk.LEFT, padx=3)
+
+    def change_cat_breed(self, breed_name):
+        sprites.set_cat_breed(breed_name)
+        self.pet_window.show_bubble(f"Cat breed changed to {breed_name.capitalize()}! *purr*", 2500)
+        sound_system.cute(dynamic=True)
 
     def change_eye_color(self, color_name):
         pal = sprites.PALETTE
