@@ -163,6 +163,13 @@ class TestPixelPetCore(unittest.TestCase):
         for logit in logits_int8:
             self.assertFalse(math.isnan(logit))
 
+    def test_12_benchmark_latency_and_efficiency(self):
+        from benchmark import benchmark_neural_int8, benchmark_memory_leak
+        avg_us, throughput = benchmark_neural_int8(iterations=1000)
+        self.assertLess(avg_us, 100.0, f"Inference latency too high: {avg_us} µs")
+        curr_mb, peak_mb = benchmark_memory_leak(loops=500)
+        self.assertLess(peak_mb, 5.0, f"Memory spike detected: {peak_mb} MB")
+
 def run_all_tests():
     print("======================================================================")
     print("       PIXEL PET AUTOMATED TEST SUITE & 24-HOUR STRESS TEST")

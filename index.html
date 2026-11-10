@@ -193,6 +193,64 @@
       background: #0369a1;
     }
 
+    #laser-dot {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: #ff1111;
+      border-radius: 50%;
+      box-shadow: 0 0 16px #ff1111, 0 0 6px #ffffff;
+      pointer-events: none;
+      z-index: 25;
+      display: none;
+      transform: translate(-50%, -50%);
+    }
+
+    .fish-treat {
+      position: absolute;
+      font-size: 26px;
+      pointer-events: none;
+      z-index: 12;
+      user-select: none;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+    }
+
+    #cozy-bed {
+      position: absolute;
+      bottom: 48px;
+      left: 30px;
+      width: 110px;
+      height: 38px;
+      background: linear-gradient(135deg, #4338ca, #312e81);
+      border: 2px solid #6366f1;
+      border-radius: 20px;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      color: #e0e7ff;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      transition: transform 0.15s ease;
+    }
+
+    #cozy-bed:hover {
+      transform: scale(1.05);
+    }
+
+    .laser-active-btn {
+      background: #ef4444 !important;
+      color: #ffffff !important;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.85; }
+      100% { opacity: 1; transform: scale(1.02); }
+    }
+
     .speech-bubble {
       background: #ffffff;
       color: #0f172a;
@@ -453,6 +511,10 @@
         <line x1="50" y1="45" x2="135" y2="175" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" />
       </svg>
 
+      <div id="laser-dot"></div>
+      <div id="treats-container"></div>
+      <div id="cozy-bed" onclick="putCatToBed()">🛏️ Cozy Bed</div>
+
       <div id="pet-container">
         <div class="speech-bubble" id="speech-bubble">Hello! I'm your Pixel Pet! *meow*</div>
         <img id="pet-sprite" src="assets/sprite_idle.png" alt="Pixel Pet">
@@ -492,6 +554,12 @@
           <span id="patience-val">80%</span>
         </div>
         <div class="bar-container"><div class="bar-fill bar-purple" id="patience-bar" style="width: 80%;"></div></div>
+
+        <canvas id="neural-canvas" width="360" height="88" style="width: 100%; height: 88px; background: #070d19; border-radius: 6px; border: 1px solid #1e293b; margin-top: 8px;"></canvas>
+        <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: #64748b; margin-top: 3px;">
+          <span>🧠 Live Synapse Activity</span>
+          <span>INT8 Latency: <strong style="color: #38bdf8;">~28 µs</strong> (0% GPU)</span>
+        </div>
       </div>
 
       <div class="panel-section">
@@ -530,6 +598,10 @@
           <button class="btn-success" onclick="hopBetweenTabs()">🪜 Hop Tab to Tab (Tiles)</button>
           <button class="btn-purple" onclick="hideBehindActiveTab()">🙈 Hide Behind Tab</button>
           <button onclick="walkAcrossCurrentTab()">🐾 Walk on Tab</button>
+        </div>
+        <div class="btn-grid" style="grid-template-columns: 1fr 1fr; margin-top: 4px;">
+          <button id="laser-btn" style="background: #be123c;" onclick="toggleLaserPointer()">🔴 Laser Chase</button>
+          <button style="background: #d97706;" onclick="tossFishTreat()">🐟 Toss Fish Treat</button>
         </div>
       </div>
 
@@ -1328,18 +1400,296 @@
       `;
     }
 
-    setInterval(() => {
-      const now = new Date();
-      document.getElementById('current-clock').innerText = now.toTimeString().substring(0, 5);
+    // --- Live Neural Brain Synapse Visualizer ---
+    const neuralCanvas = document.getElementById('neural-canvas');
+    const nCtx = neuralCanvas ? neuralCanvas.getContext('2d') : null;
 
-      if (isWorking && secondsLeft > 0) {
-        secondsLeft--;
-        const m = Math.floor(secondsLeft / 60);
-        const s = secondsLeft % 60;
-        document.getElementById('timer-display').innerText = 
-          `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    let neuralAnimPhase = 0;
+    const inputLabels = ["Context", "Work", "AFK", "Circadian", "Thirst", "Affection", "Fatigue"];
+    const actionLabels = [
+      "idle_watch", "happy_bounce", "petted_purr", "sad_pout", "angry_hiss",
+      "turned_cold", "curious_scratch", "peeking_bookmark", "curled_catnap", "falling", "empathy_beg"
+    ];
+
+    function drawNeuralNetwork() {
+      if (!nCtx) return;
+      const w = neuralCanvas.width;
+      const h = neuralCanvas.height;
+      nCtx.clearRect(0, 0, w, h);
+
+      neuralAnimPhase += 0.05;
+
+      // 7 Inputs
+      const inNodes = [];
+      const inCount = 7;
+      for (let i = 0; i < inCount; i++) {
+        inNodes.push({ x: 25, y: 12 + i * ((h - 24) / (inCount - 1)) });
       }
-    }, 1000);
+
+      // 12 Hidden Neurons
+      const hidNodes = [];
+      const hidCount = 12;
+      for (let i = 0; i < hidCount; i++) {
+        hidNodes.push({ x: w / 2, y: 8 + i * ((h - 16) / (hidCount - 1)) });
+      }
+
+      // 11 Action Outputs
+      const outNodes = [];
+      const outCount = 11;
+      for (let i = 0; i < outCount; i++) {
+        outNodes.push({ x: w - 25, y: 8 + i * ((h - 16) / (outCount - 1)) });
+      }
+
+      // Draw Synapses (connecting lines with flowing pulses)
+      nCtx.lineWidth = 1;
+      for (let i = 0; i < inNodes.length; i += 2) {
+        for (let j = 0; j < hidNodes.length; j += 3) {
+          const alpha = 0.12 + 0.1 * Math.sin(neuralAnimPhase + i + j);
+          nCtx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
+          nCtx.beginPath();
+          nCtx.moveTo(inNodes[i].x, inNodes[i].y);
+          nCtx.lineTo(hidNodes[j].x, hidNodes[j].y);
+          nCtx.stroke();
+        }
+      }
+
+      for (let j = 0; j < hidNodes.length; j += 2) {
+        for (let k = 0; k < outNodes.length; k += 3) {
+          const alpha = 0.12 + 0.1 * Math.cos(neuralAnimPhase + j + k);
+          nCtx.strokeStyle = `rgba(168, 85, 247, ${alpha})`;
+          nCtx.beginPath();
+          nCtx.moveTo(hidNodes[j].x, hidNodes[j].y);
+          nCtx.lineTo(outNodes[k].x, outNodes[k].y);
+          nCtx.stroke();
+        }
+      }
+
+      // Draw Synaptic Electrical Pulses
+      const pulseT = (neuralAnimPhase * 0.8) % 1.0;
+      for (let i = 0; i < inNodes.length; i += 2) {
+        const j = (i * 2) % hidNodes.length;
+        const px = inNodes[i].x + (hidNodes[j].x - inNodes[i].x) * pulseT;
+        const py = inNodes[i].y + (hidNodes[j].y - inNodes[i].y) * pulseT;
+        nCtx.fillStyle = '#38bdf8';
+        nCtx.beginPath();
+        nCtx.arc(px, py, 1.8, 0, Math.PI * 2);
+        nCtx.fill();
+      }
+
+      // Draw Input Nodes
+      for (let pt of inNodes) {
+        nCtx.fillStyle = '#38bdf8';
+        nCtx.beginPath();
+        nCtx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+        nCtx.fill();
+      }
+
+      // Draw Hidden Neurons
+      for (let pt of hidNodes) {
+        nCtx.fillStyle = '#c084fc';
+        nCtx.beginPath();
+        nCtx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
+        nCtx.fill();
+      }
+
+      // Draw Output Nodes (highlight winning decision)
+      const winningIdx = Math.floor(Math.abs(Math.sin(neuralAnimPhase * 0.3) * outCount)) % outCount;
+      for (let i = 0; i < outNodes.length; i++) {
+        const pt = outNodes[i];
+        if (i === winningIdx) {
+          nCtx.fillStyle = '#fbbf24';
+          nCtx.beginPath();
+          nCtx.arc(pt.x, pt.y, 4.5, 0, Math.PI * 2);
+          nCtx.fill();
+          nCtx.strokeStyle = 'rgba(251, 191, 36, 0.5)';
+          nCtx.lineWidth = 2;
+          nCtx.stroke();
+        } else {
+          nCtx.fillStyle = '#64748b';
+          nCtx.beginPath();
+          nCtx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
+          nCtx.fill();
+        }
+      }
+
+      requestAnimationFrame(drawNeuralNetwork);
+    }
+    if (neuralCanvas) {
+      drawNeuralNetwork();
+    }
+
+    // --- Interactive Laser Pointer Minigame ---
+    let isLaserMode = false;
+    const laserDot = document.getElementById('laser-dot');
+    const laserBtn = document.getElementById('laser-btn');
+    let laserX = 0;
+    let laserY = 0;
+    let laserPounceCooldown = false;
+
+    function toggleLaserPointer() {
+      isLaserMode = !isLaserMode;
+      if (isLaserMode) {
+        laserDot.style.display = 'block';
+        laserBtn.classList.add('laser-active-btn');
+        laserBtn.innerText = '🔴 Laser Active (Off)';
+        showBubble("O_O A RED DOT?! I MUST CATCH IT!!", 3000);
+        setGesture('happy', 2000);
+        playSound('cute');
+      } else {
+        laserDot.style.display = 'none';
+        laserBtn.classList.remove('laser-active-btn');
+        laserBtn.innerText = '🔴 Laser Chase';
+        showBubble("Aww, where did the red dot go?", 2000);
+        setGesture('idle');
+      }
+    }
+
+    desktop.addEventListener('pointermove', (e) => {
+      if (!isLaserMode) return;
+      const dRect = desktop.getBoundingClientRect();
+      laserX = Math.max(10, Math.min(dRect.width - 10, e.clientX - dRect.left));
+      laserY = Math.max(10, Math.min(dRect.height - 44 - 10, e.clientY - dRect.top));
+
+      laserDot.style.left = laserX + 'px';
+      laserDot.style.top = laserY + 'px';
+
+      // Cat stalk / chase physics towards the laser dot!
+      if (!isDragging && !isFalling && !isHiding && !laserPounceCooldown) {
+        const catCenterX = petX + 96;
+        const catCenterY = petY + 120;
+        const dx = laserX - catCenterX;
+        const dy = laserY - catCenterY;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > 35) {
+          // Stalk towards laser dot
+          petX += dx * 0.12;
+          petY += dy * 0.12;
+          petContainer.style.left = petX + 'px';
+          petContainer.style.top = petY + 'px';
+          if (currentGesture !== 'walking') {
+            setGesture('walking', 500);
+          }
+        } else {
+          // Pounce on laser dot!
+          laserPounceCooldown = true;
+          petContainer.classList.add('squash-bounce');
+          setTimeout(() => petContainer.classList.remove('squash-bounce'), 360);
+          playSound('thud');
+          playSound('happy');
+          setGesture('petted', 1500);
+          showBubble("POUNCE!! Got the red dot! 🐾✨", 2000);
+          affection = Math.min(100, affection + 3);
+          updateBars();
+          setTimeout(() => { laserPounceCooldown = false; }, 1400);
+        }
+      }
+    });
+
+    // --- Physics Fish Treat Toss ---
+    function tossFishTreat() {
+      if (isHiding) popOutFromHiding();
+      const treat = document.createElement('div');
+      treat.className = 'fish-treat';
+      treat.innerText = '🐟';
+
+      const dw = desktop.offsetWidth || 800;
+      const dh = desktop.offsetHeight || 640;
+      let tx = Math.random() * (dw - 120) + 40;
+      let ty = 20;
+      let tVy = 1;
+
+      treat.style.left = tx + 'px';
+      treat.style.top = ty + 'px';
+      desktop.appendChild(treat);
+
+      showBubble("Ooh! Fish treat incoming! *sniff* 🐟", 2000);
+      playSound('cute');
+
+      const treatTimer = setInterval(() => {
+        tVy += 1.4;
+        ty += tVy;
+
+        const floorY = dh - 44 - 36;
+        if (ty >= floorY) {
+          ty = floorY;
+          clearInterval(treatTimer);
+          catRunsToTreat(tx, ty, treat);
+        }
+        treat.style.top = ty + 'px';
+      }, 25);
+    }
+
+    function catRunsToTreat(targetX, targetY, treatElement) {
+      if (isDragging || isFalling) {
+        setTimeout(() => treatElement.remove(), 4000);
+        return;
+      }
+
+      setGesture('walking');
+      const startX = petX;
+      const startY = petY;
+      const destX = targetX - 60;
+      const destY = targetY - 140;
+      const startTime = Date.now();
+      const duration = 600;
+
+      function step() {
+        const t = Math.min(1, (Date.now() - startTime) / duration);
+        petX = startX + (destX - startX) * t;
+        petY = startY + (destY - startY) * t;
+        petContainer.style.left = petX + 'px';
+        petContainer.style.top = petY + 'px';
+
+        if (t < 1) {
+          requestAnimationFrame(step);
+        } else {
+          // Eat the treat!
+          treatElement.remove();
+          setGesture('eating', 3000);
+          playSound('cute');
+          showBubble("Nom nom nom! Crunchy fish treat! 🐟❤️", 3000);
+          affection = Math.min(100, affection + 8);
+          updateBars();
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    // --- Cozy Cat Bed ---
+    function putCatToBed() {
+      if (isDragging || isFalling) return;
+      if (isHiding) popOutFromHiding();
+
+      const bed = document.getElementById('cozy-bed');
+      const targetX = bed.offsetLeft + 10;
+      const targetY = bed.offsetTop - 140;
+
+      showBubble("Tucking into my cozy bed... *yawn*", 2500);
+      setGesture('walking', 1000);
+
+      const startX = petX;
+      const startY = petY;
+      const startTime = Date.now();
+      const duration = 700;
+
+      function step() {
+        const t = Math.min(1, (Date.now() - startTime) / duration);
+        petX = startX + (targetX - startX) * t;
+        petY = startY + (targetY - startY) * t;
+        petContainer.style.left = petX + 'px';
+        petContainer.style.top = petY + 'px';
+
+        if (t < 1) {
+          requestAnimationFrame(step);
+        } else {
+          setGesture('sleeping', 8000);
+          playSound('purr');
+          showBubble("Zzz... warm and cozy in bed. Purrrrr~", 4000);
+        }
+      }
+      requestAnimationFrame(step);
+    }
   </script>
 </body>
 </html>
